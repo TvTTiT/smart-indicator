@@ -3,9 +3,26 @@
 #include "esp_log.h"
 #include "page.h"
 
+#include <stdio.h>
+#include <string.h>
+#include "freertos/FreeRTOS.h"
+#include "esp_system.h"
+#include "esp_wifi.h"
+#include "esp_event.h"
+#include "nvs_flash.h"
+#include "lwip/err.h"
+#include "lwip/sys.h"
+
 #define AP_SSID "Smart Indicator"
 #define AP_MAX_CONN 4
 #define AP_CHANNEL 0
+
+char ssid[64] = "";
+char password[64] = "";
+int retry_num = 0;
+bool inputReceived = false;
+
+httpd_handle_t server = NULL; 
 
 static esp_err_t root_handler(httpd_req_t *req) {
     httpd_resp_sendstr(req, html_welcome);
@@ -29,9 +46,6 @@ static esp_err_t connect_handler(httpd_req_t *req) {
     }
     buffer[received] = '\0';
 
-    // Parse the received data to extract SSID and password
-    char ssid[64] = "";
-    char password[64] = "";
     if (httpd_query_key_value(buffer, "ssid", ssid, sizeof(ssid)) == ESP_OK &&
         httpd_query_key_value(buffer, "password", password, sizeof(password)) == ESP_OK) {
         // Print SSID and password to console
@@ -47,15 +61,14 @@ static esp_err_t connect_handler(httpd_req_t *req) {
         "</html>";
 
     httpd_resp_send(req, success_response, HTTPD_RESP_USE_STRLEN);
-
+    inputReceived = true; 
     return ESP_OK;
 }
 
 httpd_handle_t start_webserver(void) {
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
-    config.max_uri_handlers = 50;
+    server = NULL; // Initialize the global 'server' variable to NULL
 
-    httpd_handle_t server = NULL;
     if (httpd_start(&server, &config) == ESP_OK) {
         httpd_uri_t root = {
             .uri = "/",
@@ -79,16 +92,13 @@ httpd_handle_t start_webserver(void) {
     printf("Error starting the server!\n");
     return NULL;
 }
-
-void stop_webserver(httpd_handle_t server) {
-    httpd_stop(server);
+void stop_webserver(httpd_handle_t *server) {
+    if (*server != NULL) {
+        httpd_stop(*server);
+        *server = NULL; // Set the pointer to NULL
+    }
 }
-
-void wifi_event_handler(void* arg, esp_event_base_t event_base, int32_t event_id, void* event_data) {
-    // Your event handling code here
-}
-
-void wifi_initialize(void) {
+void access_point_initialize(void) {
     ESP_ERROR_CHECK(nvs_flash_init());
     ESP_ERROR_CHECK(esp_netif_init());
     ESP_ERROR_CHECK(esp_event_loop_create_default());
@@ -114,8 +124,64 @@ void wifi_initialize(void) {
 
     ESP_LOGI("WiFi", "ESP32 started in AP mode");
 
-    httpd_handle_t server = start_webserver();
+    server = start_webserver();
     if (server == NULL) {
         printf("Failed to start the HTTP server!\n");
+    }
+}
+static void wifi_event_handler(void *event_handler_arg, esp_event_base_t event_base, int32_t event_id,void *event_data){
+    if(event_id == WIFI_EVENT_STA_START){
+        printf("WIFI CONNECTING....\n");
+    }
+    else if (event_id == WIFI_EVENT_STA_CONNECTED){
+        printf("WiFi CONNECTED\n");
+    }   
+    else if (event_id == WIFI_EVENT_STA_DISCONNECTED){      
+        printf("WiFi lost connection\n");
+        if(retry_num<5){
+            esp_wifi_connect();
+            retry_num++;
+            printf("Retrying to Connect...\n");
+        }
+    }
+    else if (event_id == IP_EVENT_STA_GOT_IP){
+        printf("Wifi got IP...\n\n");
+    }
+}
+void wifi_connection() {
+    wifi_init_config_t wifi_initiation = WIFI_INIT_CONFIG_DEFAULT();
+    esp_wifi_init(&wifi_initiation);
+
+    esp_event_handler_register(WIFI_EVENT, ESP_EVENT_ANY_ID, wifi_event_handler, NULL);
+    esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, wifi_event_handler, NULL);
+
+    wifi_config_t wifi_configuration = {
+        .sta = {
+            .ssid = "",
+            .password = "",
+        }
+    };
+
+    strcpy((char *)wifi_configuration.sta.ssid, ssid);
+    strcpy((char *)wifi_configuration.sta.password, password);
+    esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_configuration);
+    esp_wifi_start();
+    esp_wifi_set_mode(WIFI_MODE_STA);
+    esp_wifi_connect();
+    printf("Wi-Fi initialization finished. SSID:%s  password:%s\n", wifi_configuration.sta.ssid, wifi_configuration.sta.password);
+}
+
+bool input_check (){
+    return inputReceived; 
+}
+void wifi_connected_handler() {
+    vTaskDelay(pdMS_TO_TICKS(1000)); 
+    stop_webserver(&server);
+    if (server == NULL) {
+        printf("The server is closed.\n");
+        esp_wifi_stop();
+        esp_wifi_deinit();
+    } else {
+        printf("The server is not closed.\n");
     }
 }

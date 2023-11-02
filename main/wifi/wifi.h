@@ -7,7 +7,10 @@
 #include "esp_event.h"
 #include "esp_http_server.h"
 
-void wifi_event_handler(void* arg, esp_event_base_t event_base, int32_t event_id, void* event_data);
-void wifi_initialize(void);
-
+void access_point_initialize(void);
+httpd_handle_t start_webserver(void);
+void stop_webserver(httpd_handle_t *server);
+void wifi_connection(void);
+bool input_check(void);
+void wifi_connected_handler();
 #endif
