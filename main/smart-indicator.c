@@ -30,7 +30,6 @@ void app_main() {
 
     // Check if Wi-Fi credentials are stored in NVS
     bool wifiStored = check_wifi_credentials();
-
     if (wifiStored) {
         wifi_connection(); // Connect to the user's home WiFi
     } else {
