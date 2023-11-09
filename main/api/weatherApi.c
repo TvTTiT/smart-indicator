@@ -23,7 +23,10 @@ esp_err_t _http_event_handler(esp_http_client_event_t *evt) {
             ESP_LOGI(TAG, "HTTP_EVENT_ON_DATA, len=%d", evt->data_len);
             if (!esp_http_client_is_chunked_response(evt->client)) {
                 // Process regular data
-                printf("%.*s", evt->data_len, (char*)evt->data);
+                printf("%.*s", evt->data_len, (char *)evt->data);
+            } else {
+                // Process chunked data
+                printf("%.*s", evt->data_len, (char *)evt->data);
             }
             break;
         case HTTP_EVENT_ON_FINISH:
@@ -39,7 +42,6 @@ esp_err_t _http_event_handler(esp_http_client_event_t *evt) {
     }
     return ESP_OK;
 }
-
 void http_request_task(void *pvParameters) {
     esp_http_client_config_t config = {
         .url = URL,
