@@ -1,10 +1,43 @@
 #include "weatherApi.h"
+#include "cJSON.h"
 
 #define TAG "weatherApi"
-//TEST API
-//#define URL "http://api.sampleapis.com/beers/ale"
-//Weather API
+// Weather API
 #define URL "http://api.forecast.solar/estimate/watthours/52.3299/6.1125/37/0/5.67"
+
+typedef struct {
+    char timestamp[20];
+    int value;
+} WeatherData;
+
+WeatherData weatherData;
+
+char accumulatedData[4096] = "";  // Adjust the size based on your expected response size
+
+void parse_weather_data(const char *json_data) {
+    cJSON *root = cJSON_Parse(json_data);
+    if (root != NULL) {
+        cJSON *result = cJSON_GetObjectItem(root, "result");
+        if (result != NULL) {
+            cJSON *timestamp, *value;
+            cJSON_ArrayForEach(timestamp, result) {
+                value = cJSON_GetObjectItem(result, timestamp->string);
+                if (value != NULL) {
+                    char tempTimestamp[20];
+                    strncpy(tempTimestamp, timestamp->string, sizeof(tempTimestamp));
+                    weatherData.value = value->valueint;
+
+                    // You may want to print or use the data here
+                    ESP_LOGI(TAG, "Timestamp: %s, Value: %d", tempTimestamp, weatherData.value);
+                }
+            }
+        }
+
+        cJSON_Delete(root); // Free cJSON objects
+    }
+}
+
+
 esp_err_t _http_event_handler(esp_http_client_event_t *evt) {
     switch (evt->event_id) {
         case HTTP_EVENT_ERROR:
@@ -19,25 +52,21 @@ esp_err_t _http_event_handler(esp_http_client_event_t *evt) {
         case HTTP_EVENT_ON_HEADER:
             ESP_LOGI(TAG, "HTTP_EVENT_ON_HEADER, key=%s, value=%s", evt->header_key, evt->header_value);
             break;
-        case HTTP_EVENT_ON_DATA:
+       case HTTP_EVENT_ON_DATA:
             ESP_LOGI(TAG, "HTTP_EVENT_ON_DATA, len=%d", evt->data_len);
-            if (!esp_http_client_is_chunked_response(evt->client)) {
-                // Process regular data
-                printf("%.*s", evt->data_len, (char *)evt->data);
-            } else {
-                // Process chunked data
-                printf("%.*s", evt->data_len, (char *)evt->data);
-            }
+            strncat(accumulatedData, (const char *)evt->data, evt->data_len);
             break;
         case HTTP_EVENT_ON_FINISH:
             ESP_LOGI(TAG, "HTTP_EVENT_ON_FINISH");
+             // Parse JSON data
+            parse_weather_data(accumulatedData);
+            print_weather_data();
             break;
         case HTTP_EVENT_DISCONNECTED:
             ESP_LOGI(TAG, "HTTP_EVENT_DISCONNECTED");
             break;
         case HTTP_EVENT_REDIRECT:
             ESP_LOGI(TAG, "HTTP_EVENT_REDIRECT");
-            // Handle redirect logic here
             break;
     }
     return ESP_OK;
@@ -62,4 +91,8 @@ void http_request_task(void *pvParameters) {
 
     esp_http_client_cleanup(client);
     vTaskDelete(NULL);
+}
+// Function to print the weather data
+void print_weather_data() {
+    ESP_LOGI(TAG, "Timestamp: %s, Value: %d", weatherData.timestamp, weatherData.value);
 }

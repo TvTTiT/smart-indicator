@@ -1,8 +1,6 @@
 #include "wifi/wifi.h"
 #include "api/weatherApi.h"
 
-// Initialize the HTTP client and fetch data
-
 void app_main() {
     // Initialize NVS flash memory at the beginning of the application
     ESP_ERROR_CHECK(nvs_flash_init());
