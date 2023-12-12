@@ -1,0 +1,13 @@
+# Target labels
+ bootloader
+# Source files and their labels
+D:/3s-test/smart-indicator/build/CMakeFiles/bootloader
+D:/3s-test/smart-indicator/build/CMakeFiles/bootloader.rule
+D:/3s-test/smart-indicator/build/CMakeFiles/bootloader-complete.rule
+D:/3s-test/smart-indicator/build/bootloader-prefix/src/bootloader-stamp/bootloader-build.rule
+D:/3s-test/smart-indicator/build/bootloader-prefix/src/bootloader-stamp/bootloader-configure.rule
+D:/3s-test/smart-indicator/build/bootloader-prefix/src/bootloader-stamp/bootloader-download.rule
+D:/3s-test/smart-indicator/build/bootloader-prefix/src/bootloader-stamp/bootloader-install.rule
+D:/3s-test/smart-indicator/build/bootloader-prefix/src/bootloader-stamp/bootloader-mkdir.rule
+D:/3s-test/smart-indicator/build/bootloader-prefix/src/bootloader-stamp/bootloader-patch.rule
+D:/3s-test/smart-indicator/build/bootloader-prefix/src/bootloader-stamp/bootloader-update.rule

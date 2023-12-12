@@ -20,7 +20,7 @@
 char ssid[64] = "";
 char password[64] = "";
 bool input_received = false;
-bool wifi_connected = NULL; 
+bool wifi_connected = false; 
 
 httpd_handle_t server = NULL; 
 
@@ -103,7 +103,7 @@ void stop_webserver(httpd_handle_t *server) {
 void access_point_initialize(void) {
     ESP_ERROR_CHECK(nvs_flash_init());
     ESP_ERROR_CHECK(esp_netif_init());
-    //ESP_ERROR_CHECK(esp_event_loop_create_default());
+    ESP_ERROR_CHECK(esp_event_loop_create_default());
     esp_netif_create_default_wifi_ap();
 
     wifi_init_config_t wifi_config = WIFI_INIT_CONFIG_DEFAULT();
@@ -134,6 +134,7 @@ void access_point_initialize(void) {
 static void wifi_event_handler(void *event_handler_arg, esp_event_base_t event_base, int32_t event_id, void *event_data) {
     if (event_id == WIFI_EVENT_STA_START) {
         printf("WIFI CONNECTING....\n");
+        wifi_connected = false;
     } else if (event_id == WIFI_EVENT_STA_CONNECTED) {
         printf("WiFi CONNECTED\n"); 
         wifi_connected = true;

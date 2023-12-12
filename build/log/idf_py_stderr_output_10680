@@ -1,0 +1,32 @@
+Compiler supported targets: xtensa-esp32-elf
+
+CMake Warning (dev) at main/CMakeLists.txt:1:
+  Syntax Warning in cmake code at column 48
+
+  Argument not separated from preceding token by whitespace.
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+CMake Warning (dev) at main/CMakeLists.txt:1:
+  Syntax Warning in cmake code at column 61
+
+  Argument not separated from preceding token by whitespace.
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+CMake Warning (dev) at main/CMakeLists.txt:1:
+  Syntax Warning in cmake code at column 74
+
+  Argument not separated from preceding token by whitespace.
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+CMake Warning (dev) at main/CMakeLists.txt:1:
+  Syntax Warning in cmake code at column 87
+
+  Argument not separated from preceding token by whitespace.
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+CMake Warning (dev) at main/CMakeLists.txt:2:
+  Syntax Warning in cmake code at column 47
+
+  Argument not separated from preceding token by whitespace.
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
