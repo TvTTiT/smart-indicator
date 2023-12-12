@@ -22,6 +22,7 @@ char password[64] = "";
 bool input_received = false;
 bool wifi_connected = false; 
 
+
 httpd_handle_t server = NULL; 
 
 static esp_err_t root_handler(httpd_req_t *req) {
@@ -103,7 +104,7 @@ void stop_webserver(httpd_handle_t *server) {
 void access_point_initialize(void) {
     ESP_ERROR_CHECK(nvs_flash_init());
     ESP_ERROR_CHECK(esp_netif_init());
-    ESP_ERROR_CHECK(esp_event_loop_create_default());
+    //ESP_ERROR_CHECK(esp_event_loop_create_default());
     esp_netif_create_default_wifi_ap();
 
     wifi_init_config_t wifi_config = WIFI_INIT_CONFIG_DEFAULT();
@@ -135,9 +136,11 @@ static void wifi_event_handler(void *event_handler_arg, esp_event_base_t event_b
     if (event_id == WIFI_EVENT_STA_START) {
         printf("WIFI CONNECTING....\n");
         wifi_connected = false;
+        vTaskDelay(pdMS_TO_TICKS(1000)); // Delay to connect to Wi-Fi
     } else if (event_id == WIFI_EVENT_STA_CONNECTED) {
         printf("WiFi CONNECTED\n"); 
         wifi_connected = true;
+        vTaskDelay(pdMS_TO_TICKS(1000)); // Delay to connect to Wi-Fi
         // Save SSID and password to NVS when the connection is successful
         nvs_handle_t nvs_handle;
         esp_err_t err = nvs_open("wifi_config", NVS_READWRITE, &nvs_handle);
@@ -157,16 +160,17 @@ static void wifi_event_handler(void *event_handler_arg, esp_event_base_t event_b
     } else if (event_id == WIFI_EVENT_STA_DISCONNECTED) {
         printf("WiFi lost connection\n");
         wifi_connected = false;
-        
+        vTaskDelay(pdMS_TO_TICKS(1000)); // Delay to connect to Wi-Fi
+        esp_restart();
     } else if (event_id == IP_EVENT_STA_GOT_IP) {
         printf("Wifi got IP...\n\n");
+        vTaskDelay(pdMS_TO_TICKS(1000)); // Delay to connect to Wi-Fi
     }
 }
 
 void wifi_connection() {
     esp_netif_init(); // Network interface initialization
     esp_event_loop_create_default(); // Event loop initialization
-
     esp_netif_create_default_wifi_sta(); // Create default WiFi station interface
 
     wifi_init_config_t wifi_initiation = WIFI_INIT_CONFIG_DEFAULT(); // Initialize WiFi
@@ -205,6 +209,7 @@ void stop_server() {
         printf("The server is closed.\n");
         esp_wifi_stop();
         esp_wifi_deinit();
+        vTaskDelay(pdMS_TO_TICKS(1000)); 
     } else {
         printf("The server is not closed.\n");
     }
