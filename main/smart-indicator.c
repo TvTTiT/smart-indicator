@@ -1,5 +1,5 @@
 #include "wifi/wifi.h"
-#include "api/weatherApi.h"
+#include "api/solarApi.h"
 #include "hardware/led.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -58,12 +58,12 @@ void app_main() {
     }
 
     if (wifi_connected) {
-       /// xTaskCreate(&http_request_task, "http_request_task", 8192, NULL, 5, NULL);
-        //get current time
+        //get the api data
+        xTaskCreate(&http_request_task, "http_request_task", 8192, NULL, 5, NULL);
         // Initialize SNTP for time synchronization
         initialize_sntp();
         vTaskDelay(pdMS_TO_TICKS(1000)); // Delay to connect to Wi-Fi
-        int current_hour = get_current_hour();
+        int current_hour = get_current_hour();// Get the current time
         printf("current_hour %d \n", current_hour);
         turn_off_all_leds(led_strip);
         vTaskDelay(pdMS_TO_TICKS(1000)); // Delay to change LEDs

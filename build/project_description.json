@@ -805,7 +805,7 @@
             "managed_reqs": [],
             "managed_priv_reqs": [ "espressif__led_strip" ],
             "file": "D:/3s-test/smart-indicator/build/esp-idf/main/libmain.a",
-            "sources": [ "D:/3s-test/smart-indicator/main/smart-indicator.c", "D:/3s-test/smart-indicator/main/wifi/wifi.c", "D:/3s-test/smart-indicator/main/wifi/wifi.h", "D:/3s-test/smart-indicator/main/wifi/page.c", "D:/3s-test/smart-indicator/main/wifi/page.h", "D:/3s-test/smart-indicator/main/api/weatherApi.c", "D:/3s-test/smart-indicator/main/api/weatherApi.h", "D:/3s-test/smart-indicator/main/hardware/led.h", "D:/3s-test/smart-indicator/main/hardware/led.c", "D:/3s-test/smart-indicator/main/hardware/current_time.h", "D:/3s-test/smart-indicator/main/hardware/current_time.c" ],
+            "sources": [ "D:/3s-test/smart-indicator/main/smart-indicator.c", "D:/3s-test/smart-indicator/main/wifi/wifi.c", "D:/3s-test/smart-indicator/main/wifi/wifi.h", "D:/3s-test/smart-indicator/main/wifi/page.c", "D:/3s-test/smart-indicator/main/wifi/page.h", "D:/3s-test/smart-indicator/main/api/solarApi.c", "D:/3s-test/smart-indicator/main/api/solarApi.h", "D:/3s-test/smart-indicator/main/hardware/led.h", "D:/3s-test/smart-indicator/main/hardware/led.c", "D:/3s-test/smart-indicator/main/hardware/current_time.h", "D:/3s-test/smart-indicator/main/hardware/current_time.c" ],
             "include_dirs": [ ".", "wifi" ]
         },
         "mbedtls": {
