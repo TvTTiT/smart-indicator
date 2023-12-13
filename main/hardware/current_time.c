@@ -10,9 +10,13 @@ static const char *TAG = "SNTP";
 void initialize_sntp(void) {
     ESP_LOGI(TAG, "Initializing SNTP");
 
-    sntp_setoperatingmode(SNTP_OPMODE_POLL);
-    sntp_setservername(0, "pool.ntp.org");
-    sntp_init();
+    // Set time zone to Central European Time (CET)
+    setenv("TZ", "CET-1CEST,M3.5.0/2,M10.5.0/3", 1);
+    tzset();
+
+    esp_sntp_setoperatingmode(SNTP_OPMODE_POLL);
+    esp_sntp_setservername(0, "pool.ntp.org");
+    esp_sntp_init();
 
     // Wait for time to be set
     time_t now = 0;
@@ -42,14 +46,4 @@ int get_current_hour(void) {
     localtime_r(&now, &timeinfo);
 
     return timeinfo.tm_hour;
-}
-
-int get_current_minutes(void) {
-    time_t now;
-    struct tm timeinfo;
-
-    time(&now);
-    localtime_r(&now, &timeinfo);
-
-    return timeinfo.tm_min;
 }

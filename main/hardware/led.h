@@ -7,5 +7,6 @@
 
 led_strip_handle_t configure_led(void);
 void default_leds(led_strip_handle_t led_strip);
-
+void turn_off_all_leds(led_strip_handle_t led_strip);
+void display_current_time(led_strip_handle_t led_strip, int hour);
 #endif  // LED_H

@@ -5,7 +5,6 @@
 #include "freertos/task.h"
 #include "freertos/timers.h"
 #include "hardware/current_time.h"
-#include "data/time_to_pint.h"
 
 // Function to handle the timer expiration
 void timerCallback(TimerHandle_t xTimer) {
@@ -59,15 +58,15 @@ void app_main() {
     }
 
     if (wifi_connected) {
-        xTaskCreate(&http_request_task, "http_request_task", 8192, NULL, 5, NULL);
+       /// xTaskCreate(&http_request_task, "http_request_task", 8192, NULL, 5, NULL);
         //get current time
         // Initialize SNTP for time synchronization
         initialize_sntp();
         vTaskDelay(pdMS_TO_TICKS(1000)); // Delay to connect to Wi-Fi
         int current_hour = get_current_hour();
-        int current_minutes = get_current_minutes();
-        printf("current_hour %d, current_minus %d \n", current_hour, current_minutes);
-        int pint = convert_hour_to_pint(current_hour);
-        printf("pint %d \n", pint);
+        printf("current_hour %d \n", current_hour);
+        turn_off_all_leds(led_strip);
+        vTaskDelay(pdMS_TO_TICKS(1000)); // Delay to change LEDs
+        display_current_time(led_strip,current_hour);
     }
 }
