@@ -5,6 +5,9 @@
     "files.associations": {
         "*.ejs": "html",
         "wifi.h": "c",
-        "weatherapi.h": "c"
+        "weatherapi.h": "c",
+        "led.h": "c",
+        "current_time.h": "c",
+        "time_to_pint.h": "c"
     }
 }

@@ -60,4 +60,5 @@ D:/3s-test/smart-indicator/build/esp-idf/mqtt/libmqtt.a
 D:/3s-test/smart-indicator/build/esp-idf/perfmon/libperfmon.a
 D:/3s-test/smart-indicator/build/esp-idf/spiffs/libspiffs.a
 D:/3s-test/smart-indicator/build/esp-idf/wifi_provisioning/libwifi_provisioning.a
+D:/3s-test/smart-indicator/build/esp-idf/espressif__led_strip/libespressif__led_strip.a
 D:/3s-test/smart-indicator/build/esp-idf/main/libmain.a

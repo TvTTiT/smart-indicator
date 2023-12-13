@@ -601,6 +601,13 @@ D:/3s-test/smart-indicator/build/esp-idf/wifi_provisioning/CMakeFiles/list_insta
 D:/3s-test/smart-indicator/build/esp-idf/wifi_provisioning/CMakeFiles/install.dir
 D:/3s-test/smart-indicator/build/esp-idf/wifi_provisioning/CMakeFiles/install/local.dir
 D:/3s-test/smart-indicator/build/esp-idf/wifi_provisioning/CMakeFiles/install/strip.dir
+D:/3s-test/smart-indicator/build/esp-idf/espressif__led_strip/CMakeFiles/__idf_espressif__led_strip.dir
+D:/3s-test/smart-indicator/build/esp-idf/espressif__led_strip/CMakeFiles/edit_cache.dir
+D:/3s-test/smart-indicator/build/esp-idf/espressif__led_strip/CMakeFiles/rebuild_cache.dir
+D:/3s-test/smart-indicator/build/esp-idf/espressif__led_strip/CMakeFiles/list_install_components.dir
+D:/3s-test/smart-indicator/build/esp-idf/espressif__led_strip/CMakeFiles/install.dir
+D:/3s-test/smart-indicator/build/esp-idf/espressif__led_strip/CMakeFiles/install/local.dir
+D:/3s-test/smart-indicator/build/esp-idf/espressif__led_strip/CMakeFiles/install/strip.dir
 D:/3s-test/smart-indicator/build/esp-idf/main/CMakeFiles/__idf_main.dir
 D:/3s-test/smart-indicator/build/esp-idf/main/CMakeFiles/edit_cache.dir
 D:/3s-test/smart-indicator/build/esp-idf/main/CMakeFiles/rebuild_cache.dir

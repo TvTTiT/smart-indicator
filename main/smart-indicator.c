@@ -1,9 +1,11 @@
 #include "wifi/wifi.h"
 #include "api/weatherApi.h"
+#include "hardware/led.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/timers.h"
-
+#include "hardware/current_time.h"
+#include "data/time_to_pint.h"
 
 // Function to handle the timer expiration
 void timerCallback(TimerHandle_t xTimer) {
@@ -15,6 +17,10 @@ void app_main() {
     // Initialize NVS flash memory at the beginning of the application
     ESP_ERROR_CHECK(nvs_flash_init());
     ESP_ERROR_CHECK(esp_event_loop_create_default());
+    // Initialize the LED strip
+    led_strip_handle_t led_strip = configure_led();
+    // Turn on defalut LEDS
+    default_leds(led_strip);
     // Check if Wi-Fi credentials are stored in NVS
     bool wifi_credentials = check_wifi_credentials();
     if (wifi_credentials) {
@@ -54,6 +60,14 @@ void app_main() {
 
     if (wifi_connected) {
         xTaskCreate(&http_request_task, "http_request_task", 8192, NULL, 5, NULL);
+        //get current time
+        // Initialize SNTP for time synchronization
+        initialize_sntp();
+        vTaskDelay(pdMS_TO_TICKS(1000)); // Delay to connect to Wi-Fi
+        int current_hour = get_current_hour();
+        int current_minutes = get_current_minutes();
+        printf("current_hour %d, current_minus %d \n", current_hour, current_minutes);
+        int pint = convert_hour_to_pint(current_hour);
+        printf("pint %d \n", pint);
     }
-
 }
