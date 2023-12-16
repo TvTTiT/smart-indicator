@@ -13,4 +13,5 @@ esp_err_t _http_event_handler(esp_http_client_event_t *evt);
 void http_request_task(void *pvParameters);
 void print_solar_data();
 void parse_solar_data(const char *json_data);
+bool is_current_date(const char *timestamp);
 #endif /* SOLAR_API_H */

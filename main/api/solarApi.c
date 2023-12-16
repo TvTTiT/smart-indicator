@@ -5,15 +5,17 @@
 // Solar API
 #define URL "http://api.forecast.solar/D7KgKB343sgm7ftz/estimate/watts/52.3299/6.1125/37/0/0.4"
 
+#define MAX_DATA_POINTS 17
+
 typedef struct {
     char timestamp[20];
     int value;
 } SolarData;
 
-SolarData solarData;
+SolarData solarData[MAX_DATA_POINTS];
 
 char accumulatedData[4096] = "";  // Adjust the size based on your expected response size
-
+int dataCount = 0;
 void parse_solar_data(const char *json_data) {
     cJSON *root = cJSON_Parse(json_data);
     if (root != NULL) {
@@ -22,13 +24,10 @@ void parse_solar_data(const char *json_data) {
             cJSON *timestamp, *value;
             cJSON_ArrayForEach(timestamp, result) {
                 value = cJSON_GetObjectItem(result, timestamp->string);
-                if (value != NULL) {
-                    char tempTimestamp[20];
-                    strncpy(tempTimestamp, timestamp->string, sizeof(tempTimestamp));
-                    solarData.value = value->valueint;
-
-                    // You may want to print or use the data here
-                    ESP_LOGI(TAG, "Timestamp: %s, Value: %d", tempTimestamp, solarData.value);
+                if (value != NULL && dataCount < MAX_DATA_POINTS) {
+                    strncpy(solarData[dataCount].timestamp, timestamp->string, sizeof(solarData[dataCount].timestamp));
+                    solarData[dataCount].value = value->valueint;
+                    dataCount++;
                 }
             }
         }
@@ -36,8 +35,6 @@ void parse_solar_data(const char *json_data) {
         cJSON_Delete(root); // Free cJSON objects
     }
 }
-
-
 esp_err_t _http_event_handler(esp_http_client_event_t *evt) {
     switch (evt->event_id) {
         case HTTP_EVENT_ERROR:
@@ -94,5 +91,7 @@ void http_request_task(void *pvParameters) {
 }
 // Function to print the solar data
 void print_solar_data() {
-    ESP_LOGI(TAG, "Timestamp: %s, Value: %d", solarData.timestamp, solarData.value);
+    for (int i = 0; i < dataCount; i++) {
+        ESP_LOGI(TAG, "Timestamp: %s, Value: %d", solarData[i].timestamp, solarData[i].value);
+    }
 }
