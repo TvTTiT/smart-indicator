@@ -12,6 +12,12 @@ void timerCallback(TimerHandle_t xTimer) {
     esp_restart();
 }
 
+void wifi_initialize() {
+    esp_netif_init(); // Network interface initialization
+    esp_netif_create_default_wifi_sta(); // Create default WiFi station interface
+
+}
+
 void app_main() {
     // Initialize NVS flash memory at the beginning of the application
     ESP_ERROR_CHECK(nvs_flash_init());
@@ -23,6 +29,7 @@ void app_main() {
     // Check if Wi-Fi credentials are stored in NVS
     bool wifi_credentials = check_wifi_credentials();
     if (wifi_credentials) {
+        wifi_initialize();
         wifi_connection(); // Connect to the user's home WiFi
         vTaskDelay(pdMS_TO_TICKS(1000)); // Delay to connect to Wi-Fi
    } 

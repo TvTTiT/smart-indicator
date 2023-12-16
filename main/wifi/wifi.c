@@ -104,7 +104,6 @@ void stop_webserver(httpd_handle_t *server) {
 void access_point_initialize(void) {
     ESP_ERROR_CHECK(nvs_flash_init());
     ESP_ERROR_CHECK(esp_netif_init());
-    //ESP_ERROR_CHECK(esp_event_loop_create_default());
     esp_netif_create_default_wifi_ap();
 
     wifi_init_config_t wifi_config = WIFI_INIT_CONFIG_DEFAULT();
@@ -169,9 +168,6 @@ static void wifi_event_handler(void *event_handler_arg, esp_event_base_t event_b
 }
 
 void wifi_connection() {
-    esp_netif_init(); // Network interface initialization
-    esp_event_loop_create_default(); // Event loop initialization
-    esp_netif_create_default_wifi_sta(); // Create default WiFi station interface
 
     wifi_init_config_t wifi_initiation = WIFI_INIT_CONFIG_DEFAULT(); // Initialize WiFi
 
