@@ -32,7 +32,7 @@ void app_main() {
     while(!wifi_connected){
         printf("start AP.......\n");
         access_point_initialize(); // Start the access point and server once
-        TimerHandle_t timer = xTimerCreate("InputTimer", pdMS_TO_TICKS(10000), pdFALSE, 0, timerCallback);
+        TimerHandle_t timer = xTimerCreate("InputTimer", pdMS_TO_TICKS(30000), pdFALSE, 0, timerCallback);
         xTimerStart(timer, 0);
 
         while (1) {
@@ -63,7 +63,8 @@ void app_main() {
         // Initialize SNTP for time synchronization
         initialize_sntp();
         vTaskDelay(pdMS_TO_TICKS(1000)); // Delay to connect to Wi-Fi
-        int current_hour = get_current_hour();// Get the current time
+        //int current_hour = get_current_hour();// Get the current time
+        int current_hour = 2;
         printf("current_hour %d \n", current_hour);
         turn_off_all_leds(led_strip);
         vTaskDelay(pdMS_TO_TICKS(1000)); // Delay to change LEDs
