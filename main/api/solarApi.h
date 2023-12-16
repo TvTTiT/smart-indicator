@@ -12,6 +12,9 @@ esp_err_t _http_event_handler(esp_http_client_event_t *evt);
 // Task to handle HTTP request
 void http_request_task(void *pvParameters);
 void print_solar_data();
+void set_avg_value();
 void parse_solar_data(const char *json_data);
-bool is_current_date(const char *timestamp);
+int get_avg_value();
+void set_time_to_use_mass_devices();
+void set_time_to_use_light_devices();
 #endif /* SOLAR_API_H */

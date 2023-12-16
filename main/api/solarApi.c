@@ -6,13 +6,17 @@
 #define URL "http://api.forecast.solar/D7KgKB343sgm7ftz/estimate/watts/52.3299/6.1125/37/0/0.4"
 
 #define MAX_DATA_POINTS 17
-
+#define MAX_TIME_TO_USE 2
 typedef struct {
     char timestamp[20];
     int value;
 } SolarData;
 
 SolarData solarData[MAX_DATA_POINTS];
+
+int time_to_use_mass_devices[MAX_TIME_TO_USE];
+int time_to_use_light_devices[MAX_TIME_TO_USE];
+int avg_value = 0;
 
 char accumulatedData[4096] = "";  // Adjust the size based on your expected response size
 int dataCount = 0;
@@ -55,9 +59,19 @@ esp_err_t _http_event_handler(esp_http_client_event_t *evt) {
             break;
         case HTTP_EVENT_ON_FINISH:
             ESP_LOGI(TAG, "HTTP_EVENT_ON_FINISH");
-             // Parse JSON data
+            // Parse & print JSON data
             parse_solar_data(accumulatedData);
             print_solar_data();
+            //set avg_value;
+            set_avg_value();
+            printf("%d avg_value \n",avg_value);
+            //set_time_to_use_mass_devices
+            set_time_to_use_mass_devices();
+            printf("%d start time_to_use_mass_devices %d end time_to_use_mass_devices \n", time_to_use_mass_devices[0], time_to_use_mass_devices[1]);
+            //set_time_to_use_light_devices
+            set_time_to_use_light_devices();
+            printf("%d start set_time_to_use_light_devices %d end set_time_to_use_light_devices \n", time_to_use_light_devices[0], time_to_use_light_devices[1]);
+
             break;
         case HTTP_EVENT_DISCONNECTED:
             ESP_LOGI(TAG, "HTTP_EVENT_DISCONNECTED");
@@ -94,4 +108,59 @@ void print_solar_data() {
     for (int i = 0; i < dataCount; i++) {
         ESP_LOGI(TAG, "Timestamp: %s, Value: %d", solarData[i].timestamp, solarData[i].value);
     }
+}
+
+void set_avg_value(){
+    int avg = 0;
+    for(int i = 0; i < MAX_DATA_POINTS;i++){
+        avg += i;
+    }
+    avg_value = avg/MAX_DATA_POINTS;
+}
+
+int get_avg_value(){
+    return avg_value;
+}
+
+void set_time_to_use_mass_devices() {
+    int min_energy_value = get_avg_value();
+    int start_hour = -1;
+    int end_hour = -1;
+
+    for (int i = 0; i < MAX_DATA_POINTS; i++) {
+        if (solarData[i].value > min_energy_value) {
+            if (start_hour == -1) {
+                // First occurrence, set the start hour
+                start_hour = atoi(solarData[i].timestamp + 11); // Extract only the hour part
+            }
+            // Update the end hour with every occurrence
+            end_hour = atoi(solarData[i].timestamp + 11); // Extract only the hour part
+        }
+    }
+
+    // Store the results in the array
+    time_to_use_mass_devices[0] = start_hour;
+    time_to_use_mass_devices[1] = end_hour;
+}
+
+
+void set_time_to_use_light_devices() {
+    int min_energy_value = get_avg_value() * 0.8;
+    int start_hour = -1;
+    int end_hour = -1;
+
+    for (int i = 0; i < MAX_DATA_POINTS; i++) {
+        if (solarData[i].value > min_energy_value) {
+            if (start_hour == -1) {
+                // First occurrence, set the start hour
+                start_hour = atoi(solarData[i].timestamp + 11); // Extract only the hour part
+            }
+            // Update the end hour with every occurrence
+            end_hour = atoi(solarData[i].timestamp + 11); // Extract only the hour part
+        }
+    }
+
+    // Store the results in the array
+    time_to_use_light_devices[0] = start_hour;
+    time_to_use_light_devices[1] = end_hour;
 }
