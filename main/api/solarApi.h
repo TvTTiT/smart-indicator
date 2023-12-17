@@ -17,4 +17,8 @@ void parse_solar_data(const char *json_data);
 int get_avg_value();
 void set_time_to_use_mass_devices();
 void set_time_to_use_light_devices();
+int get_start_time_to_use_mass_devices();
+int get_end_time_to_use_mass_devices();
+int get_start_time_to_use_light_devices();
+int get_end_time_to_use_light_devices();
 #endif /* SOLAR_API_H */

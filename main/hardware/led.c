@@ -18,12 +18,70 @@
 */
 
 
-led_strip_handle_t configure_led(void)
+led_strip_handle_t configure_current_time_led(void)
 {
     // LED strip general initialization, according to your led board design
     led_strip_config_t strip_config = {
         .strip_gpio_num = 16,   // GPIO 16
-        .max_leds = 24,        // Set the number of LEDs to 24
+        .max_leds = 12,        // Set the number of LEDs to 24
+        .led_pixel_format = LED_PIXEL_FORMAT_GRB, // Pixel format of your LED strip
+        .led_model = LED_MODEL_WS2812,            // LED strip model
+        .flags.invert_out = false,                // whether to invert the output signal
+    };
+
+    // LED strip backend configuration: RMT
+    led_strip_rmt_config_t rmt_config = {
+#if ESP_IDF_VERSION < ESP_IDF_VERSION_VAL(5, 0, 0)
+        .rmt_channel = 0,
+#else
+        .clk_src = RMT_CLK_SRC_DEFAULT,        // different clock source can lead to different power consumption
+        .resolution_hz = LED_STRIP_RMT_RES_HZ, // RMT counter clock frequency
+        .flags.with_dma = false,               // DMA feature is available on ESP target like ESP32-S3
+#endif
+    };
+
+    // LED Strip object handle
+    led_strip_handle_t led_strip;
+    ESP_ERROR_CHECK(led_strip_new_rmt_device(&strip_config, &rmt_config, &led_strip));
+    printf( "Created LED strip object with RMT backend");
+    return led_strip;
+}
+
+led_strip_handle_t configure_mass_devices_time_led(void)
+{
+    // LED strip general initialization, according to your led board design
+    led_strip_config_t strip_config = {
+        .strip_gpio_num = 17,   // GPIO 16
+        .max_leds = 12,        // Set the number of LEDs to 24
+        .led_pixel_format = LED_PIXEL_FORMAT_GRB, // Pixel format of your LED strip
+        .led_model = LED_MODEL_WS2812,            // LED strip model
+        .flags.invert_out = false,                // whether to invert the output signal
+    };
+
+    // LED strip backend configuration: RMT
+    led_strip_rmt_config_t rmt_config = {
+#if ESP_IDF_VERSION < ESP_IDF_VERSION_VAL(5, 0, 0)
+        .rmt_channel = 0,
+#else
+        .clk_src = RMT_CLK_SRC_DEFAULT,        // different clock source can lead to different power consumption
+        .resolution_hz = LED_STRIP_RMT_RES_HZ, // RMT counter clock frequency
+        .flags.with_dma = false,               // DMA feature is available on ESP target like ESP32-S3
+#endif
+    };
+
+    // LED Strip object handle
+    led_strip_handle_t led_strip;
+    ESP_ERROR_CHECK(led_strip_new_rmt_device(&strip_config, &rmt_config, &led_strip));
+    printf( "Created LED strip object with RMT backend");
+    return led_strip;
+}
+
+led_strip_handle_t configure_light_devices_time_led(void)
+{
+    // LED strip general initialization, according to your led board design
+    led_strip_config_t strip_config = {
+        .strip_gpio_num = 18,   // GPIO 16
+        .max_leds = 12,        // Set the number of LEDs to 24
         .led_pixel_format = LED_PIXEL_FORMAT_GRB, // Pixel format of your LED strip
         .led_model = LED_MODEL_WS2812,            // LED strip model
         .flags.invert_out = false,                // whether to invert the output signal
@@ -113,4 +171,112 @@ void turn_off_all_leds(led_strip_handle_t led_strip){
     ESP_ERROR_CHECK(led_strip_clear(led_strip));
     ESP_ERROR_CHECK(led_strip_refresh(led_strip));  // Refresh the LED strip to send data
     printf("default_leds is off \n");
+}
+
+void display_time_for_mass_devices(led_strip_handle_t led_strip, int start_hour, int end_hour){
+    for(int i = start_hour; i <= end_hour; i++){
+        int hour = i;
+        if(hour > 12){
+            hour -= 12;
+        }
+        //Display hour
+        switch (hour)
+        {
+        case 0:
+            ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 5, 200, 10, 10));
+            break;
+        case 1:
+            ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 6, 200, 10, 10));
+            break;
+        case 2:
+            ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 7, 200, 10, 10));
+            break;
+        case 3:
+            ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 8, 200, 10, 10));
+            break;
+        case 4:
+            ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 9, 200, 10, 10));
+            break;
+        case 5:
+            ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 10, 200, 10, 10));
+            break;
+        case 6:
+            ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 11, 200, 10, 10));
+            break;
+        case 7:
+            ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 0, 200, 10, 10));
+            break;
+        case 8:
+            ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 1, 200, 10, 10));
+            break;
+        case 9:
+            ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 2, 200, 10, 10));
+            break;
+        case 10:
+            ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 3, 200, 10, 10));
+            break;
+        case 11:
+            ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 4, 200, 10, 10));
+            break;
+        case 12:
+            ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 5, 200, 10, 10));
+            break;
+        }
+    }
+    ESP_ERROR_CHECK(led_strip_refresh(led_strip));
+    printf("display_time_for_mass_devices completed\n");
+}
+
+void display_time_for_light_devices(led_strip_handle_t led_strip, int start_hour, int end_hour){
+     for(int i = start_hour; i <= end_hour; i++){
+        int hour = i;
+        if(hour > 12){
+            hour -= 12;
+        }
+        //Display hour
+        switch (hour)
+        {
+        case 0:
+            ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 5, 200, 10, 10));
+            break;
+        case 1:
+            ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 6, 200, 10, 10));
+            break;
+        case 2:
+            ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 7, 200, 10, 10));
+            break;
+        case 3:
+            ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 8, 200, 10, 10));
+            break;
+        case 4:
+            ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 9, 200, 10, 10));
+            break;
+        case 5:
+            ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 10, 200, 10, 10));
+            break;
+        case 6:
+            ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 11, 200, 10, 10));
+            break;
+        case 7:
+            ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 0, 200, 10, 10));
+            break;
+        case 8:
+            ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 1, 200, 10, 10));
+            break;
+        case 9:
+            ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 2, 200, 10, 10));
+            break;
+        case 10:
+            ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 3, 200, 10, 10));
+            break;
+        case 11:
+            ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 4, 200, 10, 10));
+            break;
+        case 12:
+            ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 5, 200, 10, 10));
+            break;
+        }
+    }
+    ESP_ERROR_CHECK(led_strip_refresh(led_strip));
+    printf("display_time_for_light_devices completed\n");
 }

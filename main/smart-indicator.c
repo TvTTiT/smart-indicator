@@ -23,9 +23,13 @@ void app_main() {
     ESP_ERROR_CHECK(nvs_flash_init());
     ESP_ERROR_CHECK(esp_event_loop_create_default());
     // Initialize the LED strip
-    led_strip_handle_t led_strip = configure_led();
+    led_strip_handle_t current_time_led_strip = configure_current_time_led();
+    led_strip_handle_t mass_devices_led_strip = configure_mass_devices_time_led();
+    led_strip_handle_t light_devices_led_strip = configure_light_devices_time_led();
     // Turn on defalut LEDS
-    default_leds(led_strip);
+    default_leds(current_time_led_strip);
+    default_leds(mass_devices_led_strip);
+    default_leds(light_devices_led_strip);
     // Check if Wi-Fi credentials are stored in NVS
     bool wifi_credentials = check_wifi_credentials();
     if (wifi_credentials) {
@@ -63,18 +67,39 @@ void app_main() {
         xTimerStop(timer, 0);
         xTimerDelete(timer, 0);
     }
-
+    // Processing after wifi connection 
     if (wifi_connected) {
-        //get the api data
+        // Get the API data
         xTaskCreate(&http_request_task, "http_request_task", 8192, NULL, 5, NULL);
+
         // Initialize SNTP for time synchronization
         initialize_sntp();
-        vTaskDelay(pdMS_TO_TICKS(1000)); // Delay to connect to Wi-Fi
-        //int current_hour = get_current_hour();// Get the current time
-        int current_hour = 2;
+        vTaskDelay(pdMS_TO_TICKS(1000)); // Delay for SNTP
+
+        // Get the current time
+        int current_hour = get_current_hour();
         printf("current_hour %d \n", current_hour);
-        turn_off_all_leds(led_strip);
+
+        // Turn off all LEDs
+        turn_off_all_leds(current_time_led_strip);
         vTaskDelay(pdMS_TO_TICKS(1000)); // Delay to change LEDs
-        display_current_time(led_strip,current_hour);
+
+        // Display current time
+        display_current_time(current_time_led_strip, current_hour);
+
+        // Display time for mass devices
+        int mass_devices_start_hour = get_start_time_to_use_mass_devices();
+        int mass_devices_end_hour = get_end_time_to_use_mass_devices();
+        turn_off_all_leds(mass_devices_led_strip);
+        vTaskDelay(pdMS_TO_TICKS(1000)); // Delay to change LEDs
+        display_time_for_mass_devices(mass_devices_led_strip, mass_devices_start_hour, mass_devices_end_hour);
+
+        // Display time for light devices
+        int light_devices_start_hour = get_start_time_to_use_light_devices();
+        int light_devices_end_hour = get_end_time_to_use_light_devices();
+        turn_off_all_leds(light_devices_led_strip);
+        vTaskDelay(pdMS_TO_TICKS(1000)); // Delay to change LEDs
+        display_time_for_light_devices(light_devices_led_strip, light_devices_start_hour, light_devices_end_hour);
     }
+
 }

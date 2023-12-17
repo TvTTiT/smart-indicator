@@ -112,10 +112,14 @@ void print_solar_data() {
 
 void set_avg_value(){
     int avg = 0;
+    int zero_track = 0;
     for(int i = 0; i < MAX_DATA_POINTS;i++){
-        avg += i;
+        if(solarData[i].value == 0){
+            zero_track ++;
+        }
+        avg += solarData[i].value;
     }
-    avg_value = avg/MAX_DATA_POINTS;
+    avg_value = avg/(MAX_DATA_POINTS-zero_track);
 }
 
 int get_avg_value(){
@@ -143,7 +147,6 @@ void set_time_to_use_mass_devices() {
     time_to_use_mass_devices[1] = end_hour;
 }
 
-
 void set_time_to_use_light_devices() {
     int min_energy_value = get_avg_value() * 0.8;
     int start_hour = -1;
@@ -163,4 +166,20 @@ void set_time_to_use_light_devices() {
     // Store the results in the array
     time_to_use_light_devices[0] = start_hour;
     time_to_use_light_devices[1] = end_hour;
+}
+
+int get_start_time_to_use_mass_devices(){
+    return time_to_use_mass_devices[0];
+}
+
+int get_end_time_to_use_mass_devices(){
+    return time_to_use_mass_devices[1];
+}
+
+int get_start_time_to_use_light_devices(){
+    return time_to_use_light_devices[0];
+}
+
+int get_end_time_to_use_light_devices(){
+    return time_to_use_light_devices[1];
 }
