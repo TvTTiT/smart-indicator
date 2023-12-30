@@ -8,7 +8,7 @@
 
 // Function to handle the timer expiration
 void timerCallback(TimerHandle_t xTimer) {
-    printf("No input for 10 seconds. Restarting ESP32...\n");
+    printf("No input. Restarting ESP32...\n");
     esp_restart();
 }
 
@@ -24,10 +24,12 @@ void app_main() {
     ESP_ERROR_CHECK(esp_event_loop_create_default());
     // Initialize the LED strip
     led_strip_handle_t current_time_led_strip = configure_current_time_led();
+    led_strip_handle_t energy_production_time_led_strip = configure_energy_production_time_led();
     led_strip_handle_t mass_devices_led_strip = configure_mass_devices_time_led();
     led_strip_handle_t light_devices_led_strip = configure_light_devices_time_led();
     // Turn on defalut LEDS
     default_leds(current_time_led_strip);
+    default_leds(energy_production_time_led_strip);
     default_leds(mass_devices_led_strip);
     default_leds(light_devices_led_strip);
     // Check if Wi-Fi credentials are stored in NVS
@@ -43,7 +45,7 @@ void app_main() {
     while(!wifi_connected){
         printf("start AP.......\n");
         access_point_initialize(); // Start the access point and server once
-        TimerHandle_t timer = xTimerCreate("InputTimer", pdMS_TO_TICKS(30000), pdFALSE, 0, timerCallback);
+        TimerHandle_t timer = xTimerCreate("InputTimer", pdMS_TO_TICKS(5 * 60 * 1000), pdFALSE, 0, timerCallback);
         xTimerStart(timer, 0);
 
         while (1) {
@@ -69,6 +71,7 @@ void app_main() {
     }
     // Processing after wifi connection 
     if (wifi_connected) {
+        while(1){
         // Get the API data
         xTaskCreate(&http_request_task, "http_request_task", 8192, NULL, 5, NULL);
 
@@ -87,6 +90,13 @@ void app_main() {
         // Display current time
         display_current_time(current_time_led_strip, current_hour);
 
+        // Display time for energy production
+        int energy_production_start_hour = get_start_time_for_energy_production();
+        int energy_production_end_hour = get_end_time_for_energy_production();
+        turn_off_all_leds(energy_production_time_led_strip);
+        vTaskDelay(pdMS_TO_TICKS(1000)); // Delay to change LEDs
+        display_energy_production(energy_production_time_led_strip, energy_production_start_hour, energy_production_end_hour);
+        
         // Display time for mass devices
         int mass_devices_start_hour = get_start_time_to_use_mass_devices();
         int mass_devices_end_hour = get_end_time_to_use_mass_devices();
@@ -100,6 +110,10 @@ void app_main() {
         turn_off_all_leds(light_devices_led_strip);
         vTaskDelay(pdMS_TO_TICKS(1000)); // Delay to change LEDs
         display_time_for_light_devices(light_devices_led_strip, light_devices_start_hour, light_devices_end_hour);
+        vTaskDelay(pdMS_TO_TICKS(5 * 60 * 1000)); // Delay before start looping
+
+        }
+       
     }
 
 }
