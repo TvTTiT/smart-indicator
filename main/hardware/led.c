@@ -1,6 +1,5 @@
 #include "led.h"
 #include <math.h>
-#include "./api/solarApi.h"
 /* Pint Map
 
     P0 = 7h = 19h
