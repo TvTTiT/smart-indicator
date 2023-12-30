@@ -69,15 +69,13 @@ void app_main() {
         xTimerStop(timer, 0);
         xTimerDelete(timer, 0);
     }
+    // Initialize SNTP for time synchronization
+    initialize_sntp();
+    vTaskDelay(pdMS_TO_TICKS(1000)); // Delay for SNTP
     // Processing after wifi connection 
-    if (wifi_connected) {
-        while(1){
+    while (wifi_connected) {
         // Get the API data
         xTaskCreate(&http_request_task, "http_request_task", 8192, NULL, 5, NULL);
-
-        // Initialize SNTP for time synchronization
-        initialize_sntp();
-        vTaskDelay(pdMS_TO_TICKS(1000)); // Delay for SNTP
 
         // Get the current time
         int current_hour = get_current_hour();
@@ -110,10 +108,12 @@ void app_main() {
         turn_off_all_leds(light_devices_led_strip);
         vTaskDelay(pdMS_TO_TICKS(1000)); // Delay to change LEDs
         display_time_for_light_devices(light_devices_led_strip, light_devices_start_hour, light_devices_end_hour);
-        vTaskDelay(pdMS_TO_TICKS(5 * 60 * 1000)); // Delay before start looping
 
-        }
-       
+        vTaskDelay(pdMS_TO_TICKS(5 * 6 * 1000)); // Delay before start looping
+        //clean memory
+        cleanSolarData();
+        cleanAccumulatedData();
+        printf("cleaned");
     }
 
 }

@@ -8,8 +8,6 @@
 #include <esp_http_client.h>
 #include "cJSON.h"
 
-#define MAX_DATA_POINTS 18
-#define MAX_TIME_TO_USE 2
 
 // Function to handle HTTP events
 esp_err_t _http_event_handler(esp_http_client_event_t *evt);
@@ -29,4 +27,6 @@ int get_end_time_to_use_light_devices();
 int get_start_time_for_energy_production();
 int get_end_time_for_energy_production();
 void set_energy_production_time();
+void cleanSolarData();
+void cleanAccumulatedData();
 #endif /* SOLAR_API_H */

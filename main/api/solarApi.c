@@ -5,12 +5,14 @@
 // Solar API
 #define URL "http://api.forecast.solar/D7KgKB343sgm7ftz/estimate/watts/52.3299/6.1125/37/0/0.4"
 
+
+#define MAX_DATA_POINTS 18
+#define MAX_TIME_TO_USE 2
+
 typedef struct {
     char timestamp[20];
     int value;
 } SolarData;
-
-int solarValue[MAX_DATA_POINTS]; 
 
 SolarData solarData[MAX_DATA_POINTS];
 
@@ -114,16 +116,23 @@ void print_solar_data() {
     }
 }
 
-void set_avg_value(){
+void set_avg_value() {
     int avg = 0;
     int zero_track = 0;
-    for(int i = 0; i < MAX_DATA_POINTS;i++){
-        if(solarData[i].value == 0){
-            zero_track ++;
+
+    for (int i = 0; i < MAX_DATA_POINTS; i++) {
+        if (solarData[i].value == 0) {
+            zero_track++;
         }
         avg += solarData[i].value;
     }
-    avg_value = avg/(MAX_DATA_POINTS-zero_track);
+
+    if (zero_track < MAX_DATA_POINTS) {
+        avg_value = avg / (MAX_DATA_POINTS - zero_track);
+    } else {
+        // Handle the case when all values are zero
+        avg_value = 0; 
+    }
 }
 
 int get_avg_value(){
@@ -216,3 +225,13 @@ int get_end_time_to_use_light_devices(){
     return time_to_use_light_devices[1];
 }
 
+void cleanSolarData() {
+    for (int i = 0; i < MAX_DATA_POINTS; ++i) {
+        strcpy(solarData[i].timestamp, ""); // Clear timestamp
+        solarData[i].value = 0;             // Reset value
+    }
+}
+
+void cleanAccumulatedData() {
+    memset(accumulatedData, 0, sizeof(accumulatedData));
+}
