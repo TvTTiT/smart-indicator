@@ -226,10 +226,12 @@ int get_end_time_to_use_light_devices(){
 }
 
 void cleanSolarData() {
-    for (int i = 0; i < MAX_DATA_POINTS; ++i) {
-        strcpy(solarData[i].timestamp, ""); // Clear timestamp
-        solarData[i].value = 0;             // Reset value
-    }
+        for (int i = 0; i < MAX_DATA_POINTS; ++i) {
+            strcpy(solarData[i].timestamp, ""); // Clear timestamp
+            solarData[i].value = 0;             // Reset value
+        }
+        dataCount = 0;
+       
 }
 
 void cleanAccumulatedData() {

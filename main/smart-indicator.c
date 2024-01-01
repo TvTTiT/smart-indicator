@@ -109,11 +109,11 @@ void app_main() {
         vTaskDelay(pdMS_TO_TICKS(1000)); // Delay to change LEDs
         display_time_for_light_devices(light_devices_led_strip, light_devices_start_hour, light_devices_end_hour);
 
-        vTaskDelay(pdMS_TO_TICKS(5 * 6 * 1000)); // Delay before start looping
-        //clean memory
+        vTaskDelay(pdMS_TO_TICKS(1 * 60 * 1000)); // Delay 1min before start looping
+        //cleanning up 
         cleanSolarData();
         cleanAccumulatedData();
-        printf("cleaned");
+        printf("data is cleaned \n");
     }
 
 }
