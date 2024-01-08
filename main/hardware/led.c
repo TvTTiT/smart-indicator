@@ -1,4 +1,5 @@
 #include "led.h"
+#include"../api/solarApi.h"
 #include <math.h>
 /* Pint Map
 
@@ -16,6 +17,9 @@
     P11 = 18h = 6h
 */
 
+int red = 70;
+int green = 70;
+int blue = 0;
 
 led_strip_handle_t configure_current_time_led(void)
 {
@@ -149,43 +153,43 @@ void display_current_time(led_strip_handle_t led_strip, int hour) {
     switch (hour)
     {
     case 0:
-        ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 5, 70, 70, 0));
+        ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 5, red, green, blue));
         break;
     case 1:
-        ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 6, 70, 70, 0));
+        ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 6, red, green, blue));
         break;
     case 2:
-        ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 7, 70, 70, 0));
+        ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 7, red, green, blue));
         break;
     case 3:
-        ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 8, 70, 70, 0));
+        ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 8, red, green, blue));
         break;
     case 4:
-        ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 9, 70, 70, 0));
+        ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 9, red, green, blue));
         break;
     case 5:
-        ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 10, 70, 70, 0));
+        ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 10, red, green, blue));
         break;
     case 6:
-        ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 11, 70, 70, 0));
+        ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 11, red, green, blue));
         break;
     case 7:
-        ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 0, 70, 70, 0));
+        ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 0, red, green, blue));
         break;
     case 8:
-        ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 1, 70, 70, 0));
+        ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 1, red, green, blue));
         break;
     case 9:
-        ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 2, 70, 70, 0));
+        ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 2, red, green, blue));
         break;
     case 10:
-        ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 3, 70, 70, 0));
+        ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 3, red, green, blue));
         break;
     case 11:
-        ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 4, 70, 70, 0));
+        ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 4, red, green, blue));
         break;
     case 12:
-        ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 5, 70, 70, 0));
+        ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 5, red, green, blue));
         break;
         
     }
@@ -201,163 +205,206 @@ void turn_off_all_leds(led_strip_handle_t led_strip){
     printf("default_leds is off \n");
 }
 
-void display_time_for_mass_devices(led_strip_handle_t led_strip, int start_hour, int end_hour){
-    for(int i = start_hour; i <= end_hour; i++){
-        int hour = i;
+void display_time_for_mass_devices(led_strip_handle_t led_strip){
+    for(int i = 0; i < MAX_DATA_POINTS; i++){
+        int hour = atoi(solarData[i].timestamp + 11);
+        int avgValue = get_avg_value();
+        int value = solarData[i].value;
         if(hour > 12){
             hour -= 12;
         }
-        //Display hour
-        switch (hour)
-        {
-        case 0:
-            ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 5, 70, 70, 0));
-            break;
-        case 1:
-            ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 6, 70, 70, 0));
-            break;
-        case 2:
-            ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 7, 70, 70, 0));
-            break;
-        case 3:
-            ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 8, 70, 70, 0));
-            break;
-        case 4:
-            ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 9, 70, 70, 0));
-            break;
-        case 5:
-            ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 10, 70, 70, 0));
-            break;
-        case 6:
-            ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 11, 70, 70, 0));
-            break;
-        case 7:
-            ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 0, 70, 70, 0));
-            break;
-        case 8:
-            ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 1, 70, 70, 0));
-            break;
-        case 9:
-            ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 2, 70, 70, 0));
-            break;
-        case 10:
-            ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 3, 70, 70, 0));
-            break;
-        case 11:
-            ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 4, 70, 70, 0));
-            break;
-        case 12:
-            ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 5, 70, 70, 0));
-            break;
+        if(value >= avgValue){
+            //Display hour
+            switch (hour)
+            {
+            case 0:
+                ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 5, red, green, blue));
+                break;
+            case 1:
+                ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 6, red, green, blue));
+                break;
+            case 2:
+                ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 7, red, green, blue));
+                break;
+            case 3:
+                ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 8, red, green, blue));
+                break;
+            case 4:
+                ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 9, red, green, blue));
+                break;
+            case 5:
+                ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 10, red, green, blue));
+                break;
+            case 6:
+                ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 11, red, green, blue));
+                break;
+            case 7:
+                ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 0, red, green, blue));
+                break;
+            case 8:
+                ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 1, red, green, blue));
+                break;
+            case 9:
+                ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 2, red, green, blue));
+                break;
+            case 10:
+                ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 3, red, green, blue));
+                break;
+            case 11:
+                ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 4, red, green, blue));
+                break;
+            case 12:
+                ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 5, red, green, blue));
+                break;
+            } 
         }
+       
     }
     ESP_ERROR_CHECK(led_strip_refresh(led_strip));
     printf("display_time_for_mass_devices completed\n");
 }
 
-void display_time_for_light_devices(led_strip_handle_t led_strip, int start_hour, int end_hour){
-     for(int i = start_hour; i <= end_hour; i++){
-        int hour = i;
+void display_time_for_light_devices(led_strip_handle_t led_strip){
+     for(int i = 0; i < MAX_DATA_POINTS; i++){
+        int hour = atoi(solarData[i].timestamp + 11);
+        int avgValue = get_avg_value() * 0.5;
+        int value = solarData[i].value;
         if(hour > 12){
             hour -= 12;
         }
-        //Display hour
-        switch (hour)
-        {
-        case 0:
-            ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 5, 70, 70, 0));
-            break;
-        case 1:
-            ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 6, 70, 70, 0));
-            break;
-        case 2:
-            ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 7, 70, 70, 0));
-            break;
-        case 3:
-            ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 8, 70, 70, 0));
-            break;
-        case 4:
-            ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 9, 70, 70, 0));
-            break;
-        case 5:
-            ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 10, 70, 70, 0));
-            break;
-        case 6:
-            ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 11, 70, 70, 0));
-            break;
-        case 7:
-            ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 0, 70, 70, 0));
-            break;
-        case 8:
-            ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 1, 70, 70, 0));
-            break;
-        case 9:
-            ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 2, 70, 70, 0));
-            break;
-        case 10:
-            ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 3, 70, 70, 0));
-            break;
-        case 11:
-            ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 4, 70, 70, 0));
-            break;
-        case 12:
-            ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 5, 70, 70, 0));
-            break;
+        if(value >= avgValue){
+            //Display hour
+            switch (hour)
+            {
+            case 0:
+                ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 5, red, green, blue));
+                break;
+            case 1:
+                ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 6, red, green, blue));
+                break;
+            case 2:
+                ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 7, red, green, blue));
+                break;
+            case 3:
+                ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 8, red, green, blue));
+                break;
+            case 4:
+                ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 9, red, green, blue));
+                break;
+            case 5:
+                ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 10, red, green, blue));
+                break;
+            case 6:
+                ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 11, red, green, blue));
+                break;
+            case 7:
+                ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 0, red, green, blue));
+                break;
+            case 8:
+                ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 1, red, green, blue));
+                break;
+            case 9:
+                ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 2, red, green, blue));
+                break;
+            case 10:
+                ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 3, red, green, blue));
+                break;
+            case 11:
+                ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 4, red, green, blue));
+                break;
+            case 12:
+                ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 5, red, green, blue));
+                break;
+            } 
         }
+       
     }
     ESP_ERROR_CHECK(led_strip_refresh(led_strip));
     printf("display_time_for_light_devices completed\n");
 }
 
-void display_energy_production(led_strip_handle_t led_strip, int start_hour, int end_hour){
-  for(int i = start_hour; i <= end_hour; i++){
-        int hour = i;
+void display_energy_production(led_strip_handle_t led_strip){
+    int preValue = 0;
+    int preHour = 0;
+   for(int i = 0; i < MAX_DATA_POINTS; i++){
+        int red_color = red;
+        int green_color = green;
+        int blue_color = blue;
+
+        int hour = atoi(solarData[i].timestamp + 11);
+        int value = solarData[i].value;
+
+
         if(hour > 12){
             hour -= 12;
         }
-        //Display hour
-        switch (hour)
-        {
-        case 0:
-            ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 5, 70, 70, 0));
-            break;
-        case 1:
-            ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 6, 70, 70, 0));
-            break;
-        case 2:
-            ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 7, 70, 70, 0));
-            break;
-        case 3:
-            ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 8, 70, 70, 0));
-            break;
-        case 4:
-            ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 9, 70, 70, 0));
-            break;
-        case 5:
-            ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 10, 70, 70, 0));
-            break;
-        case 6:
-            ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 11, 70, 70, 0));
-            break;
-        case 7:
-            ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 0, 70, 70, 0));
-            break;
-        case 8:
-            ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 1, 70, 70, 0));
-            break;
-        case 9:
-            ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 2, 70, 70, 0));
-            break;
-        case 10:
-            ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 3, 70, 70, 0));
-            break;
-        case 11:
-            ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 4, 70, 70, 0));
-            break;
-        case 12:
-            ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 5, 70, 70, 0));
-            break;
+
+        if(i >= 1){
+            preValue = solarData[i - 1].value;
+            preHour = atoi(solarData[i - 1].timestamp + 11);
         }
+        
+        
+
+        if(value > 0)
+        {
+            if(value > preValue &&  hour > preHour && preValue != 0 && preHour != 0){
+                red_color += 10;
+                green_color += 10;
+            }
+
+            if(value < preValue && hour < preHour){
+                red_color -= 10;
+                green_color -= 10;
+            }
+            
+            printf("red %d green %d \n", red_color, green_color);
+
+            //Display hour
+            switch (hour)
+            {
+            case 0:
+                ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 5, red_color, green_color, blue_color));
+                break;
+            case 1:
+                ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 6, red_color, green_color, blue_color));
+                break;
+            case 2:
+                ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 7, red_color, green_color, blue_color));
+                break;
+            case 3:
+                ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 8, red_color, green_color, blue_color));
+                break;
+            case 4:
+                ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 9, red_color, green_color, blue_color));
+                break;
+            case 5:
+                ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 10, red_color, green_color, blue_color));
+                break;
+            case 6:
+                ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 11, red_color, green_color, blue_color));
+                break;
+            case 7:
+                ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 0, red_color, green_color, blue_color));
+                break;
+            case 8:
+                ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 1, red_color, green_color, blue_color));
+                break;
+            case 9:
+                ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 2, red_color, green_color, blue_color));
+                break;
+            case 10:
+                ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 3, red, green, blue));
+                break;
+            case 11:
+                ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 4, red, green, blue));
+                break;
+            case 12:
+                ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, 5, red, green, blue));
+                break;
+            } 
+        }
+       
     }
     ESP_ERROR_CHECK(led_strip_refresh(led_strip));
     printf("display_energy_production completed\n");

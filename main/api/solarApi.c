@@ -5,21 +5,7 @@
 // Solar API
 #define URL "http://api.forecast.solar/D7KgKB343sgm7ftz/estimate/watts/52.3299/6.1125/37/0/0.4"
 
-
-#define MAX_DATA_POINTS 18
-#define MAX_TIME_TO_USE 2
-
-typedef struct {
-    char timestamp[20];
-    int value;
-} SolarData;
-
 SolarData solarData[MAX_DATA_POINTS];
-
-int time_to_use_mass_devices[MAX_TIME_TO_USE];
-int time_to_use_light_devices[MAX_TIME_TO_USE];
-int energy_production_time[MAX_TIME_TO_USE];
-
 int avg_value = 0;
 
 char accumulatedData[4096] = "";  // Adjust the size based on your expected response size
@@ -43,6 +29,7 @@ void parse_solar_data(const char *json_data) {
         cJSON_Delete(root); // Free cJSON objects
     }
 }
+
 esp_err_t _http_event_handler(esp_http_client_event_t *evt) {
     switch (evt->event_id) {
         case HTTP_EVENT_ERROR:
@@ -69,15 +56,6 @@ esp_err_t _http_event_handler(esp_http_client_event_t *evt) {
             //set avg_value;
             set_avg_value();
             printf("%d avg_value \n",avg_value);
-            //set energy produciton time
-            set_energy_production_time();
-            printf("%d start energy_produciton_time %d end energy_produciton_time \n", energy_production_time[0], energy_production_time[1]);
-            //set_time_to_use_mass_devices
-            set_time_to_use_mass_devices();
-            printf("%d start time_to_use_mass_devices %d end time_to_use_mass_devices \n", time_to_use_mass_devices[0], time_to_use_mass_devices[1]);
-            //set_time_to_use_light_devices
-            set_time_to_use_light_devices();
-            printf("%d start set_time_to_use_light_devices %d end set_time_to_use_light_devices \n", time_to_use_light_devices[0], time_to_use_light_devices[1]);
             break;
         case HTTP_EVENT_DISCONNECTED:
             ESP_LOGI(TAG, "HTTP_EVENT_DISCONNECTED");
@@ -137,92 +115,6 @@ void set_avg_value() {
 
 int get_avg_value(){
     return avg_value;
-}
-
-void set_energy_production_time(){
-    int start_hour = -1;
-    int end_hour = -1;
-    
-    for (int i = 0; i < MAX_DATA_POINTS; i++) {
-        if(solarData[i].value > 0){
-            if (start_hour == -1) {
-            // First occurrence, set the start hour
-            start_hour = atoi(solarData[i].timestamp + 11); // Extract only the hour part
-        }
-            // Update the end hour with every occurrence
-            end_hour = atoi(solarData[i].timestamp + 11); // Extract only the hour part
-        }
-     
-    }
-    energy_production_time[0] = start_hour;
-    energy_production_time[1] = end_hour;
-}
-
-void set_time_to_use_mass_devices() {
-    int min_energy_value = get_avg_value();
-    int start_hour = -1;
-    int end_hour = -1;
-
-    for (int i = 0; i < MAX_DATA_POINTS; i++) {
-        if (solarData[i].value > min_energy_value) {
-            if (start_hour == -1) {
-                // First occurrence, set the start hour
-                start_hour = atoi(solarData[i].timestamp + 11); // Extract only the hour part
-            }
-            // Update the end hour with every occurrence
-            end_hour = atoi(solarData[i].timestamp + 11); // Extract only the hour part
-        }
-    }
-
-    // Store the results in the array
-    time_to_use_mass_devices[0] = start_hour;
-    time_to_use_mass_devices[1] = end_hour;
-}
-
-void set_time_to_use_light_devices() {
-    int min_energy_value = get_avg_value() * 0.5;
-    int start_hour = -1;
-    int end_hour = -1;
-
-    for (int i = 0; i < MAX_DATA_POINTS; i++) {
-        if (solarData[i].value > min_energy_value) {
-            if (start_hour == -1) {
-                // First occurrence, set the start hour
-                start_hour = atoi(solarData[i].timestamp + 11); // Extract only the hour part
-            }
-            // Update the end hour with every occurrence
-            end_hour = atoi(solarData[i].timestamp + 11); // Extract only the hour part
-        }
-    }
-
-    // Store the results in the array
-    time_to_use_light_devices[0] = start_hour;
-    time_to_use_light_devices[1] = end_hour;
-}
-
-int get_start_time_for_energy_production(){
-    return energy_production_time[0];
-}
-
-int get_end_time_for_energy_production(){
-    return energy_production_time[1];
-}
-
-
-int get_start_time_to_use_mass_devices(){
-    return time_to_use_mass_devices[0];
-}
-
-int get_end_time_to_use_mass_devices(){
-    return time_to_use_mass_devices[1];
-}
-
-int get_start_time_to_use_light_devices(){
-    return time_to_use_light_devices[0];
-}
-
-int get_end_time_to_use_light_devices(){
-    return time_to_use_light_devices[1];
 }
 
 void cleanSolarData() {

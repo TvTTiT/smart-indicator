@@ -72,6 +72,7 @@ void app_main() {
     // Initialize SNTP for time synchronization
     initialize_sntp();
     vTaskDelay(pdMS_TO_TICKS(1000)); // Delay for SNTP
+    
     // Processing after wifi connection 
     while (wifi_connected) {
         // Get the API data
@@ -89,25 +90,21 @@ void app_main() {
         display_current_time(current_time_led_strip, current_hour);
 
         // Display time for energy production
-        int energy_production_start_hour = get_start_time_for_energy_production();
-        int energy_production_end_hour = get_end_time_for_energy_production();
+
         turn_off_all_leds(energy_production_time_led_strip);
         vTaskDelay(pdMS_TO_TICKS(1000)); // Delay to change LEDs
-        display_energy_production(energy_production_time_led_strip, energy_production_start_hour, energy_production_end_hour);
+        display_energy_production(energy_production_time_led_strip);
         
         // Display time for mass devices
-        int mass_devices_start_hour = get_start_time_to_use_mass_devices();
-        int mass_devices_end_hour = get_end_time_to_use_mass_devices();
+
         turn_off_all_leds(mass_devices_led_strip);
         vTaskDelay(pdMS_TO_TICKS(1000)); // Delay to change LEDs
-        display_time_for_mass_devices(mass_devices_led_strip, mass_devices_start_hour, mass_devices_end_hour);
+        display_time_for_mass_devices(mass_devices_led_strip);
 
         // Display time for light devices
-        int light_devices_start_hour = get_start_time_to_use_light_devices();
-        int light_devices_end_hour = get_end_time_to_use_light_devices();
         turn_off_all_leds(light_devices_led_strip);
         vTaskDelay(pdMS_TO_TICKS(1000)); // Delay to change LEDs
-        display_time_for_light_devices(light_devices_led_strip, light_devices_start_hour, light_devices_end_hour);
+        display_time_for_light_devices(light_devices_led_strip);
 
         vTaskDelay(pdMS_TO_TICKS(1 * 60 * 1000)); // Delay 1min before start looping
         //cleanning up 
