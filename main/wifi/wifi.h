@@ -17,5 +17,9 @@ bool input_check(void);
 void stop_server(void);
 bool check_wifi_credentials();
 bool check_wifi_connection();
-
+void wifi_initialize(void);
+void nvs_reset_all(void);
+void url_decode(char* str);
+char hex_to_char(const char* hex);
+void wifi_stop();
 #endif

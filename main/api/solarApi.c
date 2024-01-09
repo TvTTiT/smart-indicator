@@ -89,7 +89,7 @@ void http_request_task(void *pvParameters) {
 }
 // Function to print the solar data
 void print_solar_data() {
-    for (int i = 0; i < dataCount; i++) {
+    for (int i = 0; i < MAX_DATA_POINTS; i++) {
         ESP_LOGI(TAG, "Timestamp: %s, Value: %d", solarData[i].timestamp, solarData[i].value);
     }
 }

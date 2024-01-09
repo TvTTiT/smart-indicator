@@ -9,7 +9,6 @@
 #include "cJSON.h"
 
 #define MAX_DATA_POINTS 18
-#define MAX_TIME_TO_USE 2
 
 typedef struct {
     char timestamp[20];

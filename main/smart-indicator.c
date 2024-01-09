@@ -12,13 +12,9 @@ void timerCallback(TimerHandle_t xTimer) {
     esp_restart();
 }
 
-void wifi_initialize() {
-    esp_netif_init(); // Network interface initialization
-    esp_netif_create_default_wifi_sta(); // Create default WiFi station interface
-
-}
-
 void app_main() {
+    //nvs_reset_all();
+    
     // Initialize NVS flash memory at the beginning of the application
     ESP_ERROR_CHECK(nvs_flash_init());
     ESP_ERROR_CHECK(esp_event_loop_create_default());
@@ -34,8 +30,8 @@ void app_main() {
     default_leds(light_devices_led_strip);
     // Check if Wi-Fi credentials are stored in NVS
     bool wifi_credentials = check_wifi_credentials();
+    wifi_initialize();
     if (wifi_credentials) {
-        wifi_initialize();
         wifi_connection(); // Connect to the user's home WiFi
         vTaskDelay(pdMS_TO_TICKS(1000)); // Delay to connect to Wi-Fi
    } 
@@ -43,11 +39,24 @@ void app_main() {
     vTaskDelay(pdMS_TO_TICKS(1000)); // Delay to connect to Wi-Fi
     bool wifi_connected = check_wifi_connection();
     while(!wifi_connected){
+         // Turn off all LEDs
+        turn_off_all_leds(current_time_led_strip);
+        turn_off_all_leds(energy_production_time_led_strip);
+        turn_off_all_leds(mass_devices_led_strip);
+        turn_off_all_leds(light_devices_led_strip);
+        vTaskDelay(pdMS_TO_TICKS(1000)); // Delay to change color 
+        // Turn to red
+        display_no_wifi_conection(current_time_led_strip);
+        display_no_wifi_conection(energy_production_time_led_strip);
+        display_no_wifi_conection(mass_devices_led_strip);
+        display_no_wifi_conection(light_devices_led_strip);
+
         printf("start AP.......\n");
         access_point_initialize(); // Start the access point and server once
+        //call back to check for wifi_connected 
         TimerHandle_t timer = xTimerCreate("InputTimer", pdMS_TO_TICKS(5 * 60 * 1000), pdFALSE, 0, timerCallback);
         xTimerStart(timer, 0);
-
+        //loop for starting server
         while (1) {
             if (input_check()) {
                 // Reset the timer if there's input
@@ -85,18 +94,15 @@ void app_main() {
         // Turn off all LEDs
         turn_off_all_leds(current_time_led_strip);
         vTaskDelay(pdMS_TO_TICKS(1000)); // Delay to change LEDs
-
         // Display current time
         display_current_time(current_time_led_strip, current_hour);
 
         // Display time for energy production
-
         turn_off_all_leds(energy_production_time_led_strip);
         vTaskDelay(pdMS_TO_TICKS(1000)); // Delay to change LEDs
         display_energy_production(energy_production_time_led_strip);
         
         // Display time for mass devices
-
         turn_off_all_leds(mass_devices_led_strip);
         vTaskDelay(pdMS_TO_TICKS(1000)); // Delay to change LEDs
         display_time_for_mass_devices(mass_devices_led_strip);
@@ -111,6 +117,7 @@ void app_main() {
         cleanSolarData();
         cleanAccumulatedData();
         printf("data is cleaned \n");
+
     }
 
 }

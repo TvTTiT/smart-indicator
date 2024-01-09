@@ -16,18 +16,58 @@
 #define AP_SSID "Smart Indicator"
 #define AP_MAX_CONN 4
 #define AP_CHANNEL 0
+#define MAX_CONNECTION_ATTEMPTS 3
 
 char ssid[64] = "";
 char password[64] = "";
 bool input_received = false;
 bool wifi_connected = false; 
 
+static int connection_attempts = 0;
 
 httpd_handle_t server = NULL; 
 
 static esp_err_t root_handler(httpd_req_t *req) {
     httpd_resp_sendstr(req, html_welcome);
     return ESP_OK;
+}
+
+// Function to decode URL-encoded string in-place
+void url_decode(char* str) {
+    char* p = str;
+    while (*p) {
+        if (*p == '%' && *(p + 1) && *(p + 2)) {
+            if (*(p + 1) == '2' && *(p + 2) == '0') {
+                // Handle space encoded as '+'
+                *p = ' ';
+                memmove(p + 1, p + 3, strlen(p + 3) + 1);
+            } else {
+                *p = hex_to_char(p + 1);
+                memmove(p + 1, p + 3, strlen(p + 3) + 1);
+            }
+        } else if (*p == '+') {
+            // Replace '+' with space
+            *p = ' ';
+        }
+        p++;
+    }
+}
+
+// Helper function to convert a hex string to a char
+char hex_to_char(const char* hex) {
+    char result = 0;
+    for (int i = 0; i < 2; ++i) {
+        char c = hex[i];
+        result = result << 4;
+        if (c >= '0' && c <= '9') {
+            result += c - '0';
+        } else if (c >= 'A' && c <= 'F') {
+            result += c - 'A' + 10;
+        } else if (c >= 'a' && c <= 'f') {
+            result += c - 'a' + 10;
+        }
+    }
+    return result;
 }
 
 static esp_err_t connect_handler(httpd_req_t *req) {
@@ -46,6 +86,9 @@ static esp_err_t connect_handler(httpd_req_t *req) {
         received += ret;
     }
     buffer[received] = '\0';
+
+    // URL decode the received data
+    url_decode(buffer);
 
     if (httpd_query_key_value(buffer, "ssid", ssid, sizeof(ssid)) == ESP_OK &&
         httpd_query_key_value(buffer, "password", password, sizeof(password)) == ESP_OK) {
@@ -156,23 +199,38 @@ static void wifi_event_handler(void *event_handler_arg, esp_event_base_t event_b
         if (err != ESP_OK) {
             ESP_LOGE("NVS", "Error saving Wi-Fi credentials to NVS");
         }
+
+        // Reset connection attempts on successful connection
+        connection_attempts = 0;
     } else if (event_id == WIFI_EVENT_STA_DISCONNECTED) {
         printf("WiFi lost connection\n");
         wifi_connected = false;
         vTaskDelay(pdMS_TO_TICKS(1000)); // Delay to connect to Wi-Fi
-        esp_restart();
+        
+        // Check the connection attempts counter
+        if (++connection_attempts >= MAX_CONNECTION_ATTEMPTS) {
+            printf("Exceeded maximum connection attempts. Restarting...\n");
+            esp_restart();
+        } else {
+            // Attempt to reconnect
+            esp_wifi_connect();
+        }
     } else if (event_id == IP_EVENT_STA_GOT_IP) {
         printf("Wifi got IP...\n\n");
         vTaskDelay(pdMS_TO_TICKS(1000)); // Delay to connect to Wi-Fi
     }
 }
 
-void wifi_connection() {
-
-    wifi_init_config_t wifi_initiation = WIFI_INIT_CONFIG_DEFAULT(); // Initialize WiFi
-
+void wifi_initialize(){
+    esp_netif_init(); // Network interface initialization
+    esp_netif_create_default_wifi_sta(); // Create default WiFi station interface
     esp_event_handler_register(WIFI_EVENT, ESP_EVENT_ANY_ID, wifi_event_handler, NULL); // Register WiFi event handler
     esp_event_handler_register(IP_EVENT, IP_EVENT_STA_GOT_IP, wifi_event_handler, NULL); // Register IP event handler
+
+}
+
+void wifi_connection() {
+    wifi_init_config_t wifi_initiation = WIFI_INIT_CONFIG_DEFAULT(); // Initialize WiFi
 
     wifi_config_t wifi_configuration = {
         .sta = {
@@ -194,6 +252,11 @@ void wifi_connection() {
 
 }
 
+void wifi_stop() {
+    ESP_ERROR_CHECK(esp_wifi_stop());    // Stop WiFi
+    ESP_ERROR_CHECK(esp_wifi_deinit());  // Deinitialize WiFi
+}
+
 bool input_check (){
     return input_received; 
 }
@@ -204,11 +267,15 @@ void stop_server() {
     if (server == NULL) {
         printf("The server is closed.\n");
         esp_wifi_stop();
-        esp_wifi_deinit();
+        esp_wifi_set_mode(WIFI_MODE_STA); // Set Wi-Fi mode to Station mode
+
+        // Optionally, you can deinitialize the NVS storage
+        ESP_ERROR_CHECK(nvs_flash_deinit());
         vTaskDelay(pdMS_TO_TICKS(1000)); 
     } else {
         printf("The server is not closed.\n");
     }
+
 }
 
 
@@ -237,4 +304,20 @@ bool check_wifi_credentials() {
 
 bool check_wifi_connection(){
     return wifi_connected; 
+}
+
+void nvs_reset_all() {
+    esp_err_t err = nvs_flash_init();
+
+    if (err == ESP_OK) {
+        err = nvs_flash_erase();
+        if (err == ESP_OK) {
+            ESP_LOGI("NVS", "NVS erased successfully");
+        } else {
+            ESP_LOGE("NVS", "Error erasing NVS: %s", esp_err_to_name(err));
+        }
+        nvs_flash_deinit();
+    } else {
+        ESP_LOGE("NVS", "Error initializing NVS: %s", esp_err_to_name(err));
+    }
 }

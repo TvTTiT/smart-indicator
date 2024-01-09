@@ -15,4 +15,5 @@ void turn_off_all_leds(led_strip_handle_t led_strip);
 void display_current_time(led_strip_handle_t led_strip, int hour);
 void display_time_for_mass_devices(led_strip_handle_t led_strip);
 void display_time_for_light_devices(led_strip_handle_t led_strip);
+void display_no_wifi_conection(led_strip_handle_t led_strip);
 #endif  // LED_H
