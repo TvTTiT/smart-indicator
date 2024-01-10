@@ -49,7 +49,7 @@ const char *html_welcome =
     "<body>"
     "<h1>Welcome to Smart Indicator</h1>"
     "<form method='post' action='/connect'>"
-    "<input type='text' name='ssid' placeholder='Wi-Fi SSID' required><br>"
+    "<input type='text' name='ssid' placeholder='Wi-Fi Name' required><br>"
     "<input type='password' name='password' placeholder='Wi-Fi Password' required><br>"
     "<input type='submit' value='Connect'>"
     "</form>"

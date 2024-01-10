@@ -6,7 +6,7 @@
 #include "freertos/event_groups.h"
 
 static const char *TAG = "SNTP";
-
+static bool sntp_initialized = false;
 void initialize_sntp(void) {
     ESP_LOGI(TAG, "Initializing SNTP");
 
@@ -31,11 +31,17 @@ void initialize_sntp(void) {
         localtime_r(&now, &timeinfo);
     }
 
-    if (retry == retry_count) {
+     if (retry == retry_count) {
         ESP_LOGE(TAG, "Failed to initialize SNTP");
+        sntp_initialized = false;
     } else {
         ESP_LOGI(TAG, "SNTP initialized");
+        sntp_initialized = true;
     }
+}
+
+bool is_sntp_initialized(void) {
+    return sntp_initialized;
 }
 
 int get_current_hour(void) {
@@ -46,4 +52,20 @@ int get_current_hour(void) {
     localtime_r(&now, &timeinfo);
 
     return timeinfo.tm_hour;
+}
+
+int get_time_gap_to_next_hour(void) {
+    time_t now;
+    struct tm timeinfo;
+
+    time(&now);
+    localtime_r(&now, &timeinfo);
+
+    // Calculate time until the next hour
+    int seconds_until_next_hour = 3600 - (timeinfo.tm_min * 60 + timeinfo.tm_sec);
+
+    // Convert seconds to milliseconds
+    int milliseconds_until_next_hour = seconds_until_next_hour * 1000;
+
+    return milliseconds_until_next_hour;
 }

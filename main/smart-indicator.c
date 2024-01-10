@@ -80,13 +80,15 @@ void app_main() {
     }
     // Initialize SNTP for time synchronization
     initialize_sntp();
+    //check for sntp
+    if (!is_sntp_initialized()) {
+        printf(" SNTP is not initialized. Restarting ESP32...\n");
+        esp_restart();
+    }  
     vTaskDelay(pdMS_TO_TICKS(1000)); // Delay for SNTP
     
     // Processing after wifi connection 
     while (wifi_connected) {
-        // Get the API data
-        xTaskCreate(&http_request_task, "http_request_task", 8192, NULL, 5, NULL);
-
         // Get the current time
         int current_hour = get_current_hour();
         printf("current_hour %d \n", current_hour);
@@ -96,6 +98,9 @@ void app_main() {
         vTaskDelay(pdMS_TO_TICKS(1000)); // Delay to change LEDs
         // Display current time
         display_current_time(current_time_led_strip, current_hour);
+
+        // Get the API data
+        xTaskCreate(&http_request_task, "http_request_task", 8192, NULL, 5, NULL);
 
         // Display time for energy production
         turn_off_all_leds(energy_production_time_led_strip);
@@ -112,7 +117,10 @@ void app_main() {
         vTaskDelay(pdMS_TO_TICKS(1000)); // Delay to change LEDs
         display_time_for_light_devices(light_devices_led_strip);
 
-        vTaskDelay(pdMS_TO_TICKS(1 * 60 * 1000)); // Delay 1min before start looping
+        // The time gap in milliseconds
+        int time_gap = get_time_gap_to_next_hour();
+        printf("Time gap until the next hour: %d milliseconds \n", time_gap);
+        vTaskDelay(pdMS_TO_TICKS(time_gap)); // Delay until the next hour before start looping
         //cleanning up 
         cleanSolarData();
         cleanAccumulatedData();
