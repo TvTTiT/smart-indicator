@@ -14,7 +14,6 @@ void timerCallback(TimerHandle_t xTimer) {
 
 void app_main() {
     //nvs_reset_all();
-    
     // Initialize NVS flash memory at the beginning of the application
     ESP_ERROR_CHECK(nvs_flash_init());
     ESP_ERROR_CHECK(esp_event_loop_create_default());
@@ -23,11 +22,13 @@ void app_main() {
     led_strip_handle_t energy_production_time_led_strip = configure_energy_production_time_led();
     led_strip_handle_t mass_devices_led_strip = configure_mass_devices_time_led();
     led_strip_handle_t light_devices_led_strip = configure_light_devices_time_led();
+    led_strip_handle_t leaf_led_strip = configure_leaf_led();
     // Turn on defalut LEDS
     default_leds(current_time_led_strip);
     default_leds(energy_production_time_led_strip);
     default_leds(mass_devices_led_strip);
     default_leds(light_devices_led_strip);
+    display_leaf_led(leaf_led_strip);
     // Check if Wi-Fi credentials are stored in NVS
     bool wifi_credentials = check_wifi_credentials();
     wifi_initialize();
@@ -54,7 +55,7 @@ void app_main() {
         printf("start AP.......\n");
         access_point_initialize(); // Start the access point and server once
         //call back to check for wifi_connected 
-        TimerHandle_t timer = xTimerCreate("InputTimer", pdMS_TO_TICKS(5 * 60 * 1000), pdFALSE, 0, timerCallback);
+        TimerHandle_t timer = xTimerCreate("InputTimer", pdMS_TO_TICKS(3 * 60 * 1000), pdFALSE, 0, timerCallback);
         xTimerStart(timer, 0);
         //loop for starting server
         while (1) {

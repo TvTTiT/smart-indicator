@@ -137,6 +137,43 @@ led_strip_handle_t configure_light_devices_time_led(void)
     return led_strip;
 }
 
+led_strip_handle_t configure_leaf_led(void)
+{
+    // LED strip general initialization, according to your led board design
+    led_strip_config_t strip_config = {
+        .strip_gpio_num = 21,   // GPIO 20
+        .max_leds = 12,        // Set the number of LEDs to 12
+        .led_pixel_format = LED_PIXEL_FORMAT_GRB, // Pixel format of your LED strip
+        .led_model = LED_MODEL_WS2812,            // LED strip model
+        .flags.invert_out = false,                // whether to invert the output signal
+    };
+
+    // LED strip backend configuration: RMT
+    led_strip_rmt_config_t rmt_config = {
+#if ESP_IDF_VERSION < ESP_IDF_VERSION_VAL(5, 0, 0)
+        .rmt_channel = 0,
+#else
+        .clk_src = RMT_CLK_SRC_DEFAULT,        // different clock source can lead to different power consumption
+        .resolution_hz = LED_STRIP_RMT_RES_HZ, // RMT counter clock frequency
+        .flags.with_dma = false,               // DMA feature is available on ESP target like ESP32-S3
+#endif
+    };
+
+    // LED Strip object handle
+    led_strip_handle_t led_strip;
+    ESP_ERROR_CHECK(led_strip_new_rmt_device(&strip_config, &rmt_config, &led_strip));
+    printf( "Created LED strip object with RMT backend");
+    return led_strip;
+}
+
+void display_leaf_led(led_strip_handle_t led_strip){
+    for (int i = 0; i < 4; i++) {
+        ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, i, 0, 0, 255));  // Turn on all LEDs
+    }
+    ESP_ERROR_CHECK(led_strip_refresh(led_strip));  // Refresh the LED strip to send data
+    printf("default_leds is on \n");
+}
+
 void default_leds(led_strip_handle_t led_strip) {
     for (int i = 0; i < 12; i++) {
         ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, i, 50, 50, 50));  // Turn on all LEDs
@@ -267,7 +304,7 @@ void display_time_for_mass_devices(led_strip_handle_t led_strip){
 void display_time_for_light_devices(led_strip_handle_t led_strip){
      for(int i = 0; i < MAX_DATA_POINTS; i++){
         int hour = atoi(solarData[i].timestamp + 11);
-        int avgValue = get_avg_value() * 0.5;
+        int avgValue = get_avg_value() * 0.7;
         int value = solarData[i].value;
         if(hour > 12){
             hour -= 12;
@@ -344,8 +381,6 @@ void display_energy_production(led_strip_handle_t led_strip){
             preHour = atoi(solarData[i - 1].timestamp + 11);
         }
         
-        
-
         if(value > 0)
         {
             if(value > preValue &&  hour > preHour && preValue != 0 && preHour != 0){

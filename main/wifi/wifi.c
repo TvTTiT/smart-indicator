@@ -16,7 +16,7 @@
 #define AP_SSID "Smart Indicator"
 #define AP_MAX_CONN 4
 #define AP_CHANNEL 0
-#define MAX_CONNECTION_ATTEMPTS 3
+#define MAX_CONNECTION_ATTEMPTS 10
 
 char ssid[64] = "";
 char password[64] = "";
