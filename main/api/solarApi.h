@@ -25,6 +25,7 @@ void print_solar_data();
 void set_avg_value();
 void parse_solar_data(const char *json_data);
 int get_avg_value();
-void cleanSolarData();
-void cleanAccumulatedData();
+void clean_solar_data();
+void clean_accumulated_data();
+int get_highest_value_of_the_day();
 #endif /* SOLAR_API_H */

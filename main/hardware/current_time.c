@@ -44,28 +44,18 @@ bool is_sntp_initialized(void) {
     return sntp_initialized;
 }
 
-int get_current_hour(void) {
+int get_time_gap_to_next_day(void) {
     time_t now;
     struct tm timeinfo;
 
     time(&now);
     localtime_r(&now, &timeinfo);
 
-    return timeinfo.tm_hour;
-}
-
-int get_time_gap_to_next_hour(void) {
-    time_t now;
-    struct tm timeinfo;
-
-    time(&now);
-    localtime_r(&now, &timeinfo);
-
-    // Calculate time until the next hour
-    int seconds_until_next_hour = 3600 - (timeinfo.tm_min * 60 + timeinfo.tm_sec);
+    // Calculate time until the next day's midnight
+    int seconds_until_midnight = (24 - timeinfo.tm_hour) * 3600 - (timeinfo.tm_min * 60 + timeinfo.tm_sec);
 
     // Convert seconds to milliseconds
-    int milliseconds_until_next_hour = seconds_until_next_hour * 1000;
+    int milliseconds_until_midnight = seconds_until_midnight * 1000;
 
-    return milliseconds_until_next_hour;
+    return milliseconds_until_midnight;
 }

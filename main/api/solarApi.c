@@ -117,7 +117,7 @@ int get_avg_value(){
     return avg_value;
 }
 
-void cleanSolarData() {
+void clean_solar_data() {
         for (int i = 0; i < MAX_DATA_POINTS; ++i) {
             strcpy(solarData[i].timestamp, ""); // Clear timestamp
             solarData[i].value = 0;             // Reset value
@@ -126,6 +126,18 @@ void cleanSolarData() {
        
 }
 
-void cleanAccumulatedData() {
+void clean_accumulated_data() {
     memset(accumulatedData, 0, sizeof(accumulatedData));
+}
+
+int get_highest_value_of_the_day() {
+    int index_result;
+    int temp_value = 0;
+    for(int i = 0;i < MAX_DATA_POINTS; i++){
+        if(temp_value < solarData[i].value){
+            temp_value = solarData[i].value;
+            index_result = i;
+        }
+    }
+    return index_result; 
 }

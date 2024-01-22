@@ -18,16 +18,16 @@ void app_main() {
     ESP_ERROR_CHECK(nvs_flash_init());
     ESP_ERROR_CHECK(esp_event_loop_create_default());
     // Initialize the LED strip
-    led_strip_handle_t current_time_led_strip = configure_current_time_led();
-    led_strip_handle_t energy_production_time_led_strip = configure_energy_production_time_led();
-    led_strip_handle_t mass_devices_led_strip = configure_mass_devices_time_led();
-    led_strip_handle_t light_devices_led_strip = configure_light_devices_time_led();
+    led_strip_handle_t mass_devices_led_strip_1 = configure_mass_devices_time_led_1();
+    led_strip_handle_t mass_devices_led_strip_2 = configure_mass_devices_time_led_2();
+    led_strip_handle_t light_devices_led_strip_1 = configure_light_devices_time_led_1();
+    led_strip_handle_t light_devices_led_strip_2 = configure_light_devices_time_led_2();
     led_strip_handle_t leaf_led_strip = configure_leaf_led();
     // Turn on defalut LEDS
-    default_leds(current_time_led_strip);
-    default_leds(energy_production_time_led_strip);
-    default_leds(mass_devices_led_strip);
-    default_leds(light_devices_led_strip);
+    default_leds(mass_devices_led_strip_1);
+    default_leds(mass_devices_led_strip_2);
+    default_leds(light_devices_led_strip_1);
+    default_leds(light_devices_led_strip_2);
     display_leaf_led(leaf_led_strip);
     // Check if Wi-Fi credentials are stored in NVS
     bool wifi_credentials = check_wifi_credentials();
@@ -41,16 +41,16 @@ void app_main() {
     bool wifi_connected = check_wifi_connection();
     while(!wifi_connected){
          // Turn off all LEDs
-        turn_off_all_leds(current_time_led_strip);
-        turn_off_all_leds(energy_production_time_led_strip);
-        turn_off_all_leds(mass_devices_led_strip);
-        turn_off_all_leds(light_devices_led_strip);
+        turn_off_all_leds(mass_devices_led_strip_1);
+        turn_off_all_leds(mass_devices_led_strip_2);
+        turn_off_all_leds(light_devices_led_strip_1);
+        turn_off_all_leds(light_devices_led_strip_2);
         vTaskDelay(pdMS_TO_TICKS(1000)); // Delay to change color 
         // Turn to red
-        display_no_wifi_conection(current_time_led_strip);
-        display_no_wifi_conection(energy_production_time_led_strip);
-        display_no_wifi_conection(mass_devices_led_strip);
-        display_no_wifi_conection(light_devices_led_strip);
+        display_no_wifi_conection(mass_devices_led_strip_1);
+        display_no_wifi_conection(mass_devices_led_strip_2);
+        display_no_wifi_conection(light_devices_led_strip_1);
+        display_no_wifi_conection(light_devices_led_strip_2);
 
         printf("start AP.......\n");
         access_point_initialize(); // Start the access point and server once
@@ -90,41 +90,31 @@ void app_main() {
     
     // Processing after wifi connection 
     while (wifi_connected) {
-        // Get the current time
-        int current_hour = get_current_hour();
-        printf("current_hour %d \n", current_hour);
-
-        // Turn off all LEDs
-        turn_off_all_leds(current_time_led_strip);
         vTaskDelay(pdMS_TO_TICKS(1000)); // Delay to change LEDs
-        // Display current time
-        display_current_time(current_time_led_strip, current_hour);
-
         // Get the API data
         xTaskCreate(&http_request_task, "http_request_task", 8192, NULL, 5, NULL);
 
-        // Display time for energy production
-        turn_off_all_leds(energy_production_time_led_strip);
-        vTaskDelay(pdMS_TO_TICKS(1000)); // Delay to change LEDs
-        display_energy_production(energy_production_time_led_strip);
-        
         // Display time for mass devices
-        turn_off_all_leds(mass_devices_led_strip);
+        turn_off_all_leds(mass_devices_led_strip_1);
+        turn_off_all_leds(mass_devices_led_strip_2);
         vTaskDelay(pdMS_TO_TICKS(1000)); // Delay to change LEDs
-        display_time_for_mass_devices(mass_devices_led_strip);
+        display_time_for_mass_devices(mass_devices_led_strip_1);
+        display_time_for_mass_devices(mass_devices_led_strip_2);
 
         // Display time for light devices
-        turn_off_all_leds(light_devices_led_strip);
+        turn_off_all_leds(light_devices_led_strip_1);
+        turn_off_all_leds(light_devices_led_strip_2);
         vTaskDelay(pdMS_TO_TICKS(1000)); // Delay to change LEDs
-        display_time_for_light_devices(light_devices_led_strip);
+        display_time_for_light_devices(light_devices_led_strip_1);
+        display_time_for_light_devices(light_devices_led_strip_2);
 
         // The time gap in milliseconds
-        int time_gap = get_time_gap_to_next_hour();
-        printf("Time gap until the next hour: %d milliseconds \n", time_gap);
+        int time_gap = get_time_gap_to_next_day();
+        printf("Time gap until the next day: %d milliseconds \n", time_gap);
         vTaskDelay(pdMS_TO_TICKS(time_gap)); // Delay until the next hour before start looping
         //cleanning up 
-        cleanSolarData();
-        cleanAccumulatedData();
+        clean_solar_data();
+        clean_accumulated_data();
         printf("data is cleaned \n");
 
     }
