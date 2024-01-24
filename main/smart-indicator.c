@@ -4,7 +4,6 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/timers.h"
-#include "hardware/current_time.h"
 
 // Function to handle the timer expiration
 void timerCallback(TimerHandle_t xTimer) {
@@ -79,17 +78,12 @@ void app_main() {
         xTimerStop(timer, 0);
         xTimerDelete(timer, 0);
     }
-    // Initialize SNTP for time synchronization
-    initialize_sntp();
-    //check for sntp
-    if (!is_sntp_initialized()) {
-        printf(" SNTP is not initialized. Restarting ESP32...\n");
-        esp_restart();
-    }  
-    vTaskDelay(pdMS_TO_TICKS(1000)); // Delay for SNTP
-    
     // Processing after wifi connection 
     while (wifi_connected) {
+        //cleanning up 
+        clean_solar_data();
+        clean_accumulated_data();
+        printf("data is cleaned \n");
         vTaskDelay(pdMS_TO_TICKS(1000)); // Delay to change LEDs
         // Get the API data
         xTaskCreate(&http_request_task, "http_request_task", 8192, NULL, 5, NULL);
@@ -109,9 +103,9 @@ void app_main() {
         display_time_for_light_devices(light_devices_led_strip_2);
 
         // The time gap in milliseconds
-        int time_gap = get_time_gap_to_next_day();
-        printf("Time gap until the next day: %d milliseconds \n", time_gap);
-        vTaskDelay(pdMS_TO_TICKS(time_gap)); // Delay until the next hour before start looping
+        int one_hours_in_milliseconds = (60 * 60 * 1000); 
+        printf("Time gap until the next hour: %d milliseconds \n", one_hours_in_milliseconds);
+        vTaskDelay(pdMS_TO_TICKS(one_hours_in_milliseconds)); // Delay until the next hour before start updating the data
         //cleanning up 
         clean_solar_data();
         clean_accumulated_data();

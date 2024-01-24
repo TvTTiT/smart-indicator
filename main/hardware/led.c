@@ -17,8 +17,8 @@
     P11 = 18h = 6h
 */
 
-#define RED 70
-#define GREEN 70
+#define RED 250
+#define GREEN 255
 #define BLUE 0
 
 led_strip_handle_t configure_mass_devices_time_led_1(void)
@@ -168,7 +168,7 @@ led_strip_handle_t configure_leaf_led(void)
 
 void display_leaf_led(led_strip_handle_t led_strip){
     for (int i = 0; i < 4; i++) {
-        ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, i, 0, 255, 255));  // Turn on all LEDs
+        ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, i, 200, 255, 0));  // Turn on all LEDs
     }
     ESP_ERROR_CHECK(led_strip_refresh(led_strip));  // Refresh the LED strip to send data
     printf("default_leds is on \n");
