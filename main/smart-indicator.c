@@ -87,7 +87,6 @@ void app_main() {
         vTaskDelay(pdMS_TO_TICKS(1000)); // Delay to change LEDs
         // Get the API data
         xTaskCreate(&http_request_task, "http_request_task", 8192, NULL, 5, NULL);
-
         // Display time for mass devices
         turn_off_all_leds(mass_devices_led_strip_1);
         turn_off_all_leds(mass_devices_led_strip_2);

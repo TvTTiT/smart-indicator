@@ -171,7 +171,7 @@ void display_leaf_led(led_strip_handle_t led_strip){
         ESP_ERROR_CHECK(led_strip_set_pixel(led_strip, i, 200, 255, 0));  // Turn on all LEDs
     }
     ESP_ERROR_CHECK(led_strip_refresh(led_strip));  // Refresh the LED strip to send data
-    printf("default_leds is on \n");
+    printf("display leaf is on  \n");
 }
 
 void default_leds(led_strip_handle_t led_strip) {
